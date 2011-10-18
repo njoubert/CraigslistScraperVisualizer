@@ -25,6 +25,8 @@ from CLSchema import *
 from CLParser import *
 
 CL_RSS_PAGE = "http://sfbay.craigslist.org/sfc/hhh/index.rss"
+WAIT_TIME = 12*60
+WAIT_OFFSET = 5*60
 
 usage="""
 This is a craigslist scraper script.
@@ -49,29 +51,35 @@ def pull_craigslist():
 def parse_craigslist(document):
     return CLParser(document)
 
+def simple_save_current_feed():
+  document = pull_craigslist()
+  parser = parse_craigslist(document)
+  td = datetime.date.today()  
+  basepath = os.path.join(os.getcwd(), "data", socket.gethostname())
+  filedir = os.path.join(basepath, "%d_%d" % (td.year, td.month))
+  try:
+    os.makedirs(filedir)
+  except OSError:
+    if (not os.path.exists(filedir)):
+      print "Could not create data directory! Exiting..."
+      exit
+  
+  tid = int(time.time())
+  text_file = open(os.path.join(filedir,"dl_%d.xml" % tid), "w")
+  text_file.write(document)
+  text_file.close()
+  return parser.channel.updateBase
+
+def simple_save_loop():
+  while True:
+    updateBase = simple_save_current_feed()
+    waitsec = WAIT_TIME + random.randint(-WAIT_OFFSET,WAIT_OFFSET)
+    print "Pulled craigslist data with timestamp %s. Next pull in %s seconds" % (updateBase, waitsec)
+    time.sleep(waitsec)
 
 def main():
   if options.simple:
-    basepath = os.path.join(os.getcwd(), "data", socket.gethostname())
-
-    while True:
-      document = pull_craigslist()
-      tid = int(time.time())
-      td = datetime.date.today()  
-      filedir = os.path.join(basepath, "%d_%d" % (td.year, td.month))
-      try:
-        os.makedirs(filedir)
-      except OSError:
-        if (not os.path.exists(filedir)):
-          print "Could not create data directory! Exiting..."
-          exit
-      text_file = open(os.path.join(filedir,"dl_%d.xml" % tid), "w")
-      text_file.write(document)
-      text_file.close()
-      waitsec = 540 + random.randint(-300,180)
-      print "Pulled document from craigslist at %d. Next pull in %s seconds" % (tid, waitsec)
-      time.sleep(waitsec)
-    
+    simple_save_loop()
   else:    
     try:
       parser = parse_craigslist(pull_craigslist())
