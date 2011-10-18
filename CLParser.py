@@ -29,7 +29,6 @@ class CLParser:
     self.__parsed = False
   
   def _parse(self):
-    print "Parsing CL RSS feed"
     try:
       self.dom = xml.dom.minidom.parseString(self.raw_data)
       self._handleDom(self.dom)
