@@ -62,7 +62,7 @@ def main():
       try:
         os.makedirs(filedir)
       except OSError:
-        if !(os.path.exists(filedir)):
+        if (not os.path.exists(filedir)):
           print "Could not create data directory! Exiting..."
           exit
       text_file = open(os.path.join(filedir,"dl_%d.xml" % tid), "w")
