@@ -36,8 +36,12 @@ optparser = OptionParser(usage=usage)
 optparser.add_option("-s", "--simple", action="store_true", default=False,
       help="Should we just save the XML doc periodically")
 
-(options, args) = optparser.parse_args()
+optparser.add_option("-d", "--data-directory", type="string", default=os.path.join(os.getcwd(), "data", socket.gethostname()),
+      help="Should we just save the XML doc periodically")
+  
 
+(options, args) = optparser.parse_args()
+BASEPATH = os.path.abspath(options.data_directory)
 
 def pull_craigslist():
   try:
@@ -55,8 +59,7 @@ def simple_save_current_feed():
   document = pull_craigslist()
   parser = parse_craigslist(document)
   td = datetime.date.today()  
-  basepath = os.path.join(os.getcwd(), "data", socket.gethostname())
-  filedir = os.path.join(basepath, "%d_%d" % (td.year, td.month))
+  filedir = os.path.join(BASEPATH, "%d_%d" % (td.year, td.month))
   try:
     os.makedirs(filedir)
   except OSError:
