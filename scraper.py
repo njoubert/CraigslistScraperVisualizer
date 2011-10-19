@@ -28,16 +28,14 @@ CL_RSS_PAGE = "http://sfbay.craigslist.org/sfc/hhh/index.rss"
 WAIT_TIME = 12*60
 WAIT_OFFSET = 5*60
 
-usage="""
-This is a craigslist scraper script.
-"""
+usage="""This is a craigslist scraper script."""
 
 optparser = OptionParser(usage=usage)
 optparser.add_option("-s", "--simple", action="store_true", default=False,
       help="Should we just save the XML doc periodically")
 
 optparser.add_option("-d", "--data-directory", type="string", default=os.path.join(os.getcwd(), "data", socket.gethostname()),
-      help="Should we just save the XML doc periodically")
+      help="Where do we save data?")
   
 
 (options, args) = optparser.parse_args()
@@ -53,11 +51,12 @@ def pull_craigslist():
     exit
 
 def parse_craigslist(document):
-    return CLParser(document)
+  parser = CLParser()
+  return parser.parse(document)
 
 def simple_save_current_feed():
-  document = pull_craigslist()
-  parser = parse_craigslist(document)
+  doc = pull_craigslist()
+  document = parse_craigslist(doc)
   td = datetime.date.today()  
   filedir = os.path.join(BASEPATH, "%d_%d" % (td.year, td.month))
   try:
@@ -69,9 +68,9 @@ def simple_save_current_feed():
   
   tid = int(time.time())
   text_file = open(os.path.join(filedir,"dl_%d.xml" % tid), "w")
-  text_file.write(document)
+  text_file.write(doc)
   text_file.close()
-  return parser.channel.updateBase
+  return document.channel.updateBase
 
 def simple_save_loop():
   while True:

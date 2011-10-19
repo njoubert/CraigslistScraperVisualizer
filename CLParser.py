@@ -21,20 +21,24 @@ from CLSchema import *
 import pdb
 
 class CLParser:
-  def __init__(self, document):
-    self.raw_data = document
-    self.items = []
-    self.channel = None
-    self._parse()
+  def __init__(self):
+    self.raw_data = None
+    self.document = None
     self.__parsed = False
   
-  def _parse(self):
+  def parse(self, raw_data):
+    self.raw_data = raw_data
+    self.document = None
+    self.__parsed = False
     try:
       self.dom = xml.dom.minidom.parseString(self.raw_data)
+      self.document = CLDocument()
       self._handleDom(self.dom)
       self.__parsed = True
     except IndexError:
       self.__parsed = False
+      
+    return self.document
     
   def _handleDom(self, dom):
     self._handleChannel(dom.getElementsByTagName("channel")[0])
@@ -46,7 +50,7 @@ class CLParser:
     updateFrequency = int(dom.getElementsByTagName("syn:updateFrequency")[0].childNodes[0].data)
     updatePeriod = dom.getElementsByTagName("syn:updatePeriod")[0].childNodes[0].data
     items = dom.getElementsByTagName("items")[0].getElementsByTagName("rdf:Seq")[0].getElementsByTagName("rdf:li")
-    self.channel = CLChannel(link, updateBase, updateFrequency, updatePeriod, items)
+    self.document.channel = CLChannel(link, updateBase, updateFrequency, updatePeriod, items)
     
   def _handleItems(self, dom):
     for i in dom:
@@ -63,4 +67,4 @@ class CLParser:
       post_link_id = m.group(3)
       
       item = CLItem(title, link, description, date, source, issued, post_location=post_location, post_type=post_type, post_link_id=post_link_id)
-      self.items.append(item)
+      self.document.items.append(item)

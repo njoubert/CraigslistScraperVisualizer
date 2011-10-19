@@ -7,6 +7,10 @@ Created by Niels Joubert on 2011-10-17.
 Copyright (c) 2011 Stanford. All rights reserved.
 """
 
+class CLDocument:
+  def __init__(self):
+    self.channel = None
+    self.items = []
 
 class CLItem:
   def __init__(self, title, link, description, date, source, issued, post_location="sfb", post_type="hhh", post_link_id="0000000000"):
