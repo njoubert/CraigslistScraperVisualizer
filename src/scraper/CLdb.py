@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+from datetime import datetime
+
 import oursql
 
 import CLConfig
@@ -31,7 +33,7 @@ class CLdb:
   def get_post_with_id(self, id):
     self._check_connect()
     curs = self.conn.cursor()
-    curs.execute('SELECT * FROM `posts` WHERE `id` = ?', params=[0])
+    curs.execute('SELECT * FROM `posts` WHERE `id` = ?', params=[id])
     row = curs.fetchone()
     if (row != None):
       return DBPost(int(row[0]), row[1], row[2], row[3], row[4], row[5])
@@ -41,15 +43,15 @@ class CLdb:
   def get_post_with_key(self, region, city, section, cl_id):
     self._check_connect()
     curs = self.conn.cursor()
-    curs.execute('SELECT * FROM `posts` WHERE `region` = ? AND `city` = ? AND `section` = ? AND cl_id = ?', params=(region, city, section, int(cl_id)))
+    curs.execute('SELECT * FROM `posts` WHERE `region` = ? AND `city` = ? AND `section` = ? AND cl_id = ?', params=(region, city, section, cl_id))
     row = curs.fetchone()
     if (row != None):
       return DBPost(int(row[0]), row[1], row[2], row[3], row[4], row[5])
     else:
       return None;
       
-  def get_post_with_post_as_key(p):
-    return get_post_with_key(p.region, p.city, p.section, p.cl_id)
+  def get_post_with_post_as_key(self, p):
+    return self.get_post_with_key(p.region, p.city, p.section, p.cl_id)
     
   def get_post_instance_with_ids(self, id=None, post_id=None):
     self._check_connect()
@@ -61,13 +63,20 @@ class CLdb:
     self._check_connect()
     curs = self.conn.cursor()
     if (p.id == None):
-      curs.execute('INSERT INTO posts (region, city, section, cl_id) VALUES (?, ?, ?, ?)', params=(p.region, p.city, p.section, p.cl_id))
+      curs.execute('INSERT INTO posts (region, city, section, cl_id, created, posted_on, last_seen) VALUES (?, ?, ?, ?, ?, ?, ?)', params=(p.region, p.city, p.section, p.cl_id, p.created, p.posted_on, p.last_seen))
       newid = curs.lastrowid
       p.id = newid;
     else:
       print "Why does this have an id already?"
-      
-    return DBPost()
+  
+  def update_post_last_seen(self, p):
+    self._check_connect()
+    curs = self.conn.cursor()
+    if (p.id != None):
+      curs.execute('UPDATE posts SET last_seen = ? WHERE `id` = ?', params=(p.last_seen, p.id))
+    else:
+      print "We need an IDq"
+    
     
   def insert_post_instance(self, db_post_instance):
     self._check_connect()
@@ -88,22 +97,29 @@ def get_db_instance():
 ## Database Schema Follows    
     
 class DBPost:
-  def __init__(self, id=None, region=None, city=None, section=None, cl_id=0, first_seen=None):
+  def __init__(self, id=None, region=None, city=None, section=None, cl_id=0, created=datetime.now(), posted_on=datetime.now(), last_seen=datetime.now()):
     self.id = id
     
     self.region = region
     self.city = city
     self.section = section
-    self.cl_id = 0
-    self.first_seen = first_seen
+    self.cl_id = cl_id
+    
+    self.created = created
+    self.posted_on = posted_on
+    self.last_seen = last_seen
     
   def __eq__(self, o):
-    return (self.id == o.id) and (self.region == o.region) and (self.city == o.city) and (self.section == o.section) and (self.cl_id == o.cl_id)
+    return (o != None) and (self.id == o.id) and (self.region == o.region) and (self.city == o.city) and (self.section == o.section) and (self.cl_id == o.cl_id)
   
   def __unicode__(self):
-    return "DBPost (%d, %s, %s, %s, %s, %s)" % (self.id, self.region, self.city, self.section, self.cl_id, self.first_seen)
+    if self.id == None:
+      return "DBPost (%s, %s, %s, %s, %s)" % (self.region, self.city, self.section, self.cl_id, self.posted_on)
+    else:
+      return "DBPost (%d, %s, %s, %s, %s, %s, %s, %s)" % (self.id, self.region, self.city, self.section, self.cl_id, self.created, self.posted_on, self.last_seen)
+  
   def __str__(self):
-    return "DBPost (%d, %s, %s, %s, %s, %s)" % (self.id, self.region, self.city, self.section, self.cl_id, self.first_seen)
+    return self.__unicode__().encode('utf-8')
     
     
 class DBPostInstance:

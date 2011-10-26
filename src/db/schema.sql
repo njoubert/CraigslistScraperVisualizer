@@ -1,4 +1,5 @@
-
+DROP TABLE IF EXISTS posts;
+DROP TABLE IF EXISTS post_instance;
 
 #table reconstructed from post link, eg: http://sfbay.craigslist.org/sfc/prk/2658742009.html
 CREATE TABLE IF NOT EXISTS posts (
@@ -7,8 +8,10 @@ CREATE TABLE IF NOT EXISTS posts (
   city VARCHAR(3),                # "sfc" - NULL would indicate it's the whole region, not just a city (like sfc) in a region (sfbay)
   section VARCHAR(3) NOT NULL,    # "hhh"
   cl_id BIGINT NOT NULL,          # number id of CL post
-  first_seen TIMESTAMP,           # when this entry was created
-  
+  created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  posted_on TIMESTAMP NOT NULL,            # when this entry was created
+  last_seen TIMESTAMP NOT NULL,            # last time this entry was in database
+
   PRIMARY KEY (id),
   UNIQUE INDEX compound_post_id (region, city, section, cl_id)
 );

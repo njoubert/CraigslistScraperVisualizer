@@ -61,10 +61,11 @@ class CLParser:
       source = i.getElementsByTagName("dc:source")[0].childNodes[0].data
       issued = i.getElementsByTagName("dcterms:issued")[0].childNodes[0].data
       
-      m = re.match('http://sfbay\.craigslist\.org/(\w\w\w)/(\w\w\w)/(\d+)\.html', link)
-      post_city= m.group(1)
-      post_section = m.group(2)
-      post_cl_id = m.group(3)
+      m = re.match('http://(\w+)\.craigslist\.org/(\w\w\w)/(\w\w\w)/(\d+)\.html', link)
+      post_region = m.group(1)
+      post_city= m.group(2)
+      post_section = m.group(3)
+      post_cl_id = m.group(4)
       
-      item = CLItem(title, link, description, date, source, issued, post_city=post_city, post_section=post_section, post_cl_id=post_cl_id)
+      item = CLItem(title, link, description, date, source, issued, post_region=post_region, post_city=post_city, post_section=post_section, post_cl_id=post_cl_id)
       self.document.items.append(item)

@@ -86,10 +86,10 @@ def main():
   docs = []
   for d in docgen:
     docs.append(d)
-  
+    
   for d in docs:
-    for post in d.items:
-      CLInputPipeline.arrive(post)
+   for post in d.items:
+     CLInputPipeline.arrive(d, post)
   
   #isUnique = assert_all_post_cl_ids_are_unique(docs)
   #print "Are all post ID's unique?", isUnique
