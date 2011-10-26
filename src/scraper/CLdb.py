@@ -52,12 +52,20 @@ class CLdb:
       
   def get_post_with_post_as_key(self, p):
     return self.get_post_with_key(p.region, p.city, p.section, p.cl_id)
-    
-  def get_post_instance_with_ids(self, id=None, post_id=None):
-    self._check_connect()
-    
-    #implement
-    return DBPostInstance()
+      
+  def get_postis_with_post_as_key(self, post):
+    if (post.id == None):
+      return []
+    else:
+      self._check_connect()
+      curs = self.conn.cursor()
+      curs.execute('SELECT * FROM `post_instance` WHERE `post_id` = ?', params=[post.id])
+      rows = curs.fetchall()
+      postis = []
+      for r in rows:
+        postis.append(DBPostInstance(r[0],r[1],r[2],r[3],r[4],r[5],r[6],r[7],r[8],r[9],r[10],r[11],r[12],r[13],r[14]))
+      return postis
+    return []
     
   def insert_post(self, p):
     self._check_connect()
@@ -79,12 +87,19 @@ class CLdb:
       print "We need an IDq"
     
     
-  def insert_post_instance(self, db_post_instance):
+  def insert_post_instance(self, i):
     self._check_connect()
     #make sure the instance has a valid post id!
-    
-    #returns post with correct ID's filled out
-    return DBPostInstance()
+    curs = self.conn.cursor()
+    if (i.post_id == None or not (type(i.post_id).__name__ == 'int' or type(i.post_id).__name__ == 'long')):
+      print "Why does this not have a post_id?", type(i.post_id)
+    elif (i.id == None):
+      curs.execute('INSERT INTO post_instance (post_id, title, link, description, issued, price, sqft, neighborhood, bedroomcount, loc_xstreet0, loc_xstreet1, loc_city, loc_region, loc_link) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', params=(i.post_id, i.title, i.link, i.description, i.issued, i.price, i.sqft, i.neighborhood, i.bedroomcount, i.loc_xstreet0, i.loc_xstreet1, i.loc_city, i.loc_region, i.loc_link))
+      newid = curs.lastrowid
+      i.id = newid;
+    else:
+      print "Why does this have an id already?"
+    return i.id
   
 
 def get_db_instance():
@@ -124,7 +139,7 @@ class DBPost:
     
     
 class DBPostInstance:
-  def __init__(self, id=0, post_id=0, title=None, link=None, description=None, issued=datetime.now(), price=0, sqft=0, neighborhood=None, bedroomcount=0, loc_xstreet0=None, loc_xstreet1=None, loc_city=None, loc_region=None, loc_link=None):
+  def __init__(self, id=None, post_id=None, title=None, link=None, description=None, issued=datetime.now(), price=0, sqft=0, neighborhood=None, bedroomcount=0, loc_xstreet0=None, loc_xstreet1=None, loc_city=None, loc_region=None, loc_link=None):
     self.id = id
     self.post_id = post_id
     
@@ -132,10 +147,12 @@ class DBPostInstance:
     self.link = link
     self.description = description
     self.issued = issued
+    
     self.price = price
     self.sqft = sqft
     self.neighborhood = neighborhood
     self.bedroomcount = bedroomcount
+    
     self.loc_xstreet0 = loc_xstreet0
     self.loc_xstreet1 = loc_xstreet1
     self.loc_city = loc_city
@@ -143,7 +160,25 @@ class DBPostInstance:
     self.loc_link = loc_link
     
   def __eq__(self, o):
-    print "IMPLEMENT THIS"
+    ti = (self.title == o.title)
+    li = (self.link == o.link)
+    de = (self.description == o.description)
+    iss = (self.issued == o.issued)
+    pr = (self.price == o.price)
+    sq = (self.sqft == o.sqft)
+    ne = (self.neighborhood == o.neighborhood)
+    be = (self.bedroomcount == o.bedroomcount)
+    
+    alleq = (o != None) and ti and li and de and iss and pr and sq and ne and be
+    
+    # if (not alleq):
+    #   print "We failed on ti=%r li=%r de=%r iss=%r pr=%r sq=%r ne=%r be=%r " % (ti, li, de, iss, pr, sq, ne, be)
+    #   if (not de):
+    #     print ">>>", self.description
+    #     print "<<<", o.description
+      
+    return alleq
+
     
   def __unicode__(self):
     if self.id == None:      

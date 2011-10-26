@@ -1,3 +1,5 @@
+SET NAMES 'utf8';
+
 DROP TABLE IF EXISTS posts;
 DROP TABLE IF EXISTS post_instance;
 
@@ -23,7 +25,7 @@ CREATE TABLE post_instance (
   #primary data
   title TEXT NOT NULL,
   link VARCHAR(255) NOT NULL,
-  description BLOB,
+  description TEXT CHARACTER SET utf8 COLLATE utf8_general_ci,
   issued DATETIME NOT NULL,
   
   #derived data
@@ -31,6 +33,7 @@ CREATE TABLE post_instance (
   sqft INT,
   neighborhood VARCHAR(255),
   bedroomcount INT,
+
   loc_xstreet0 VARCHAR(128),
   loc_xstreet1 VARCHAR(128),
   loc_city VARCHAR(30),

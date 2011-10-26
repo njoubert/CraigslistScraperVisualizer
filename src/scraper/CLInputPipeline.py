@@ -16,8 +16,7 @@ import CLdb
 
 def arrive(cl_doc, cl_item):
   db = CLdb.get_db_instance()
-  #print "Arrival of ", cl_item.link
-
+  
   #Construct a suggested database entry from the item
   #Check how to fit this into the database:
     #is it a brand new post? Add it
@@ -27,20 +26,30 @@ def arrive(cl_doc, cl_item):
   
   post, post_i = translate_cl_item_to_db_objects(cl_item, cl_doc)
   
-  
-  
   dupepost = db.get_post_with_post_as_key(post)
   if (dupepost == None):
-    #Just add all the new data, it's new!
+    print "Saving brand new post ", cl_item.link
     id = db.insert_post(post)
-    #print "New post", post.id
     post_i.post_id = id
     db.insert_post_instance(post_i)
-  else:
+  else:    
     dupepost.last_seen = cl_doc.channel.get_datetime()
     db.update_post_last_seen(dupepost)
-    #print "Post already exists, updating last_seen time", dupepost
-    #Gotta check for more info
+    post_i.post_id = dupepost.id
+    
+    dupepostis = db.get_postis_with_post_as_key(dupepost)
+    found = False
+    for dpi in dupepostis:
+      if (dpi == post_i):
+        found = True
+        break
+    
+    if (found):
+      print "Ignoring duplicate ", cl_item.link
+    else:
+      db.insert_post_instance(post_i)
+      print "Saving new instance of %d, %s" % (dupepost.id, cl_item.link)
+
     
     
 def translate_cl_item_to_db_objects(ci, cd):
@@ -54,30 +63,30 @@ def translate_cl_item_to_db_objects(ci, cd):
   post.posted_on = ci.get_datetime()
   post.last_seen = cd.channel.get_datetime()
   
-  print "---",ci.title
-  print ci.parse_derived_title_data()
   
   posti.title = ci.title
+  posti.link = ci.link
+  posti.description = ci.description
+  posti.issued = ci.get_datetime()
+  
+  try:
+    dft = ci.parse_derived_title_data()
+    posti.title = dft['titletext']
+    posti.price = dft['price']
+    posti.sqft =  dft['sqft']
+    posti.bedroomcount = dft['bd']
+    posti.neighborhood = dft['neighborhood']
+  except:
+    pass
+
+  try:
+    dfd = ci.parse_derived_description_data()
+    posti.loc_xstreet0 = dfd['loc_xstreet0']
+    posti.loc_xstreet1 = dfd['loc_xstreet1']
+    posti.loc_city = dfd['loc_city']
+    posti.loc_region = dfd['loc_region']
+    posti.loc_link = dfd['loc_link']
+  except:
+    pass
   
   return (post, posti)
-  
-  
-  
-  
-# db = CLdb.get_db_instance()
-# 
-# p1 = CLdb.DBPost(region="sfbay", city="sfc", section="apa", cl_id=5)
-# try:
-#   db.insert_post(p1)
-# except:
-#   pass
-# 
-# 
-# p2 = db.get_post_with_post_as_key(p1)
-# 
-# p2.id = None
-# p2.region = "pen"
-# try:
-#   db.insert_post(p2)
-# except:
-#   pass
