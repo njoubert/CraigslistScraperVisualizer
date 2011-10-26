@@ -16,7 +16,7 @@ import CLdb
 
 def arrive(cl_doc, cl_item):
   db = CLdb.get_db_instance()
-  print "Arrival of ", cl_item.link
+  #print "Arrival of ", cl_item.link
 
   #Construct a suggested database entry from the item
   #Check how to fit this into the database:
@@ -26,16 +26,21 @@ def arrive(cl_doc, cl_item):
 
   
   post, post_i = translate_cl_item_to_db_objects(cl_item, cl_doc)
+  
+  
+  
   dupepost = db.get_post_with_post_as_key(post)
   if (dupepost == None):
     #Just add all the new data, it's new!
-    print "New post woot"
-    db.insert_post(post)
+    id = db.insert_post(post)
+    #print "New post", post.id
+    post_i.post_id = id
+    db.insert_post_instance(post_i)
   else:
     dupepost.last_seen = cl_doc.channel.get_datetime()
     db.update_post_last_seen(dupepost)
+    #print "Post already exists, updating last_seen time", dupepost
     #Gotta check for more info
-    print "Post already exists, updating last_seen time ", dupepost
     
     
 def translate_cl_item_to_db_objects(ci, cd):
@@ -48,6 +53,9 @@ def translate_cl_item_to_db_objects(ci, cd):
   post.cl_id = ci.post_cl_id
   post.posted_on = ci.get_datetime()
   post.last_seen = cd.channel.get_datetime()
+  
+  print "---",ci.title
+  print ci.parse_derived_title_data()
   
   posti.title = ci.title
   

@@ -68,6 +68,7 @@ class CLdb:
       p.id = newid;
     else:
       print "Why does this have an id already?"
+    return p.id
   
   def update_post_last_seen(self, p):
     self._check_connect()
@@ -116,14 +117,14 @@ class DBPost:
     if self.id == None:
       return "DBPost (%s, %s, %s, %s, %s)" % (self.region, self.city, self.section, self.cl_id, self.posted_on)
     else:
-      return "DBPost (%d, %s, %s, %s, %s, %s, %s, %s)" % (self.id, self.region, self.city, self.section, self.cl_id, self.created, self.posted_on, self.last_seen)
+      return "DBPost ((%d): %s, %s, %s, %s, %s, %s, %s)" % (self.id, self.region, self.city, self.section, self.cl_id, self.created, self.posted_on, self.last_seen)
   
   def __str__(self):
     return self.__unicode__().encode('utf-8')
     
     
 class DBPostInstance:
-  def __init__(self, id=0, post_id=0, title=None, link=None, description=None, issued=None, price=0, sqft=0, neighborhood=None, bedroomcount=0, loc_xstreet0=None, loc_xstreet1=None, loc_city=None, loc_region=None, loc_link=None):
+  def __init__(self, id=0, post_id=0, title=None, link=None, description=None, issued=datetime.now(), price=0, sqft=0, neighborhood=None, bedroomcount=0, loc_xstreet0=None, loc_xstreet1=None, loc_city=None, loc_region=None, loc_link=None):
     self.id = id
     self.post_id = post_id
     
@@ -140,3 +141,16 @@ class DBPostInstance:
     self.loc_city = loc_city
     self.loc_region = loc_region
     self.loc_link = loc_link
+    
+  def __eq__(self, o):
+    print "IMPLEMENT THIS"
+    
+  def __unicode__(self):
+    if self.id == None:      
+      return "DBPostInstance (%s, %s, %s, %s, %s, %s, %s)" % (self.title, self.link, self.issued, self.price, self.neighborhood, self.bedroomcount, self.description)
+
+    else:
+      return "DBPostInstance ((%d, %d): %s, %s, %s, %s, %s, %s, %s)" % (self.id, self.post_id, self.title, self.link, self.issued, self.price, self.neighborhood, self.bedroomcount, self.description)
+  
+  def __str__(self):
+    return self.__unicode__().encode('utf-8')
