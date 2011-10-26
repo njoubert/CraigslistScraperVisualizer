@@ -10,7 +10,6 @@ See:
 
 http://docs.python.org/library/urllib.html
 """
-
 import pdb
 import sys
 import os
@@ -23,6 +22,8 @@ from optparse import OptionParser
 
 from CLSchema import *
 from CLParser import *
+import CLConfig
+import CLInputPipeline
 
 CL_RSS_PAGE = "http://sfbay.craigslist.org/sfc/hhh/index.rss"
 WAIT_TIME = 12*60
@@ -61,8 +62,8 @@ def get_docs_generator():
     else:
       print "Could not parse %s." % f
 
-def assert_all_post_link_ids_are_unique(doclist):
-  links = [(i.post_link_id, i.title) for d in doclist for i in d.items]
+def assert_all_post_cl_ids_are_unique(doclist):
+  links = [(i.post_cl_id, i.title) for d in doclist for i in d.items]
   icount = {}
   print "counting..."
   for l in links:
@@ -85,8 +86,13 @@ def main():
   docs = []
   for d in docgen:
     docs.append(d)
-  isUnique = assert_all_post_link_ids_are_unique(docs)
-  print "Are all post ID's unique?", isUnique
+  
+  for d in docs:
+    for post in d.items:
+      CLInputPipeline.arrive(post)
+  
+  #isUnique = assert_all_post_cl_ids_are_unique(docs)
+  #print "Are all post ID's unique?", isUnique
   
 if __name__ == '__main__':
   sys.exit(main())

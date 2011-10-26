@@ -1,0 +1,7 @@
+{
+	"DB_SERV": "seilvis.stanford.edu",
+	"DB_PORT": 3306,
+	"DB_BASE": "clvis",
+	"DB_USER": "clvisuser",
+	"DB_PASS": "PhAsp3fr"
+}

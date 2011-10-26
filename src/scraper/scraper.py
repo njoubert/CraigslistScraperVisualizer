@@ -23,6 +23,7 @@ from optparse import OptionParser
 
 from CLSchema import *
 from CLParser import *
+import CLConfig
 
 CL_RSS_PAGE = "http://sfbay.craigslist.org/sfc/hhh/index.rss"
 WAIT_TIME = 12*60

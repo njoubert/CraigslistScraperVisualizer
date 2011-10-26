@@ -13,7 +13,7 @@ class CLDocument:
     self.items = []
 
 class CLItem:
-  def __init__(self, title, link, description, date, source, issued, post_location="sfb", post_type="hhh", post_link_id="0000000000"):
+  def __init__(self, title, link, description, date, source, issued, post_city="sfb", post_section="hhh", post_cl_id="0000000000"):
     self.title             = title
     self.link              = link        
     self.description       = description 
@@ -21,9 +21,9 @@ class CLItem:
     self.source            = source      
     self.issued            = issued      
         
-    self.post_location     = post_location
-    self.post_type         = post_type
-    self.post_link_id      = post_link_id
+    self.post_city         = post_city
+    self.post_section      = post_section
+    self.post_cl_id        = post_cl_id
         
 class CLChannel:
   def __init__(self, link, updateBase, updateFrequency, updatePeriod, items):
