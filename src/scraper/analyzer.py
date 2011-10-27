@@ -83,14 +83,13 @@ def assert_all_post_cl_ids_are_unique(doclist):
   
 def main():
   docgen = get_docs_generator()
-  docs = []
   for d in docgen:
-    docs.append(d)
-    
-  for d in docs:
    for post in d.items:
-     CLInputPipeline.arrive(d, post)
-  
+     try:
+       CLInputPipeline.arrive(d, post)
+     except:
+       print "Could not add item %s", post.link
+      
   #isUnique = assert_all_post_cl_ids_are_unique(docs)
   #print "Are all post ID's unique?", isUnique
   

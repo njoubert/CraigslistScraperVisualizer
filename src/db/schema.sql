@@ -23,7 +23,7 @@ CREATE TABLE post_instance (
   post_id INT NOT NULL,
   
   #primary data
-  title TEXT NOT NULL,
+  title TEXT  CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   link VARCHAR(255) NOT NULL,
   description TEXT CHARACTER SET utf8 COLLATE utf8_general_ci,
   issued DATETIME NOT NULL,
