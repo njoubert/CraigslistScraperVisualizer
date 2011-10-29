@@ -41,5 +41,6 @@ CREATE TABLE post_instance (
   loc_link VARCHAR(255),
   
   PRIMARY KEY (id),
-  INDEX (title(100))
+  INDEX (title(100)).
+  INDEX (post_id)
 );
