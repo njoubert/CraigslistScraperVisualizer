@@ -24,6 +24,7 @@ from optparse import OptionParser
 from CLSchema import *
 from CLParser import *
 import CLConfig
+import CLInputPipeline
 
 CL_RSS_PAGE = "http://sfbay.craigslist.org/sfc/hhh/index.rss"
 WAIT_TIME = 12*60
@@ -55,10 +56,10 @@ def parse_craigslist(document):
   parser = CLParser()
   return parser.parse(document)
 
-def simple_save_current_feed():
+def simple_save_current_feed(parse=False):
   doc = pull_craigslist()
   document = parse_craigslist(doc)
-  td = datetime.date.today()  
+  td = datetime.now()  
   filedir = os.path.join(BASEPATH, "%d_%d" % (td.year, td.month))
   try:
     os.makedirs(filedir)
@@ -67,25 +68,32 @@ def simple_save_current_feed():
       print "Could not create data directory! Exiting..."
       exit
   
+  if parse:
+    for post in document.items:
+      try:
+        CLInputPipeline.arrive(document, post)
+      except:
+        print "Could not add item %s", post.link
+      
   tid = int(time.time())
   text_file = open(os.path.join(filedir,"dl_%d.xml" % tid), "w")
   text_file.write(doc)
   text_file.close()
   return document.channel.updateBase
 
-def simple_save_loop():
+def save_loop(parse=False):
   while True:
-    updateBase = simple_save_current_feed()
+    updateBase = simple_save_current_feed(parse=parse)
     waitsec = WAIT_TIME + random.randint(-WAIT_OFFSET,WAIT_OFFSET)
     print "Pulled craigslist data with timestamp %s. Next pull in %s seconds" % (updateBase, waitsec)
     time.sleep(waitsec)
 
 def main():
   if options.simple:
-    simple_save_loop()
+    save_loop(parse=False)
   else:    
     try:
-      parser = parse_craigslist(pull_craigslist())
+      save_loop(parse=True)
     except IOError:
       print "Couldn't parse"
        
