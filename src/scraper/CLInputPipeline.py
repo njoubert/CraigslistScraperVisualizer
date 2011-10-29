@@ -45,7 +45,7 @@ def arrive(cl_doc, cl_item):
         break
     
     if (found):
-      print "Ignoring duplicate ", cl_item.link
+      print "Ignoring duplicate ", cl_item.link, " tested ", len(dupepostis)
     else:
       db.insert_post_instance(post_i)
       print "Saving new instance of %d, %s" % (dupepost.id, cl_item.link)
