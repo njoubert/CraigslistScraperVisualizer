@@ -26,9 +26,10 @@ from CLParser import *
 import CLConfig
 import CLInputPipeline
 
-CL_RSS_PAGE = "http://sfbay.craigslist.org/sfc/hhh/index.rss"
-WAIT_TIME = 12*60
-WAIT_OFFSET = 5*60
+
+# CL_RSS_PAGE = "http://sfbay.craigslist.org/sfc/hhh/index.rss"
+# WAIT_TIME = 12*60
+# WAIT_OFFSET = 5*60
 
 usage="""This is a craigslist scraper script."""
 
@@ -45,7 +46,7 @@ BASEPATH = os.path.abspath(options.data_directory)
 
 def pull_craigslist():
   try:
-    s = urlopen(CL_RSS_PAGE)
+    s = urlopen(CLConfig.get("CL_RSS_PAGE"))
     html = s.read()
     return html
   except IOError:
@@ -84,7 +85,7 @@ def simple_save_current_feed(parse=False):
 def save_loop(parse=False):
   while True:
     updateBase = simple_save_current_feed(parse=parse)
-    waitsec = WAIT_TIME + random.randint(-WAIT_OFFSET,WAIT_OFFSET)
+    waitsec = CLConfig.get("WAIT_TIME") + random.randint(-CLConfig.get("WAIT_OFFSET"),CLConfig.get("WAIT_OFFSET"))
     print "Pulled craigslist data with timestamp %s. Next pull in %s seconds" % (updateBase, waitsec)
     time.sleep(waitsec)
 
