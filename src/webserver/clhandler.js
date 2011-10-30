@@ -24,7 +24,8 @@
  */
 var fs = require('fs')
   , path = require('path')
-  , url = require('url');
+  , url = require('url')
+  , mysql = require('db-mysql');
 
 /**
  * Expose the entrypoint api.
@@ -36,10 +37,23 @@ exports = module.exports = function clhandler(options){
   
   //attempt to connect to database
   
+  var db;
+  
+  new mysql.Database({
+    hostname: options["DB_SERV"],
+    user: options["DB_USER"],
+    password: options["DB_PASS"],
+    database: options["DB_BASE"]
+  }).on('error', function(error) {console.log('DB: Error' + error)})
+  .on('ready', function(server) {console.log('DB: Connected to ' + server.hostname + ' (' + server.version + ')'); db = this;})
+  .connect();
+  
+  
+  console.log('Craigslist Request Handler initializing...');
   return function clhandler(req,res,next) {
     options.path = req.url;
     options.getOnly = true;
-    handle(req,res,next,options);
+    handle(req,res,next,options,db);
   };
 };
 
@@ -53,15 +67,15 @@ exports = module.exports = function clhandler(options){
  * @api private
  */
 
-var handle = exports.handle = function(req,res,next,options){
+var handle = exports.handle = function(req,res,next,options,db){
   options = options || {};
   if (!options.path) throw new Error('path required');
   
   //send response
   var path = url.parse(options.path);
-      
+  
   if (routes.hasOwnProperty(path.pathname)) {
-    return routes[path.pathname](req,res,next,options,path);
+    return routes[path.pathname](req,res,next,options,db,path);
   }
   return next();
 }
@@ -83,15 +97,24 @@ var resJson = function(res,jsobject) {
  */
 var routes = { }
 
-routes['/getAll.json'] = function(req,res,next,options,path) {
+routes['/getAll.json'] = function(req,res,next,options,db,path) {
   next(new Error('Not implemented yet'));
 };
 
-routes["/getCount.json"] = function(req,res,next,options,path) {
-  next(new Error('Not implemented yet'));
+routes["/getCount.json"] = function(req,res,next,options,db,path) {
+  db.query().select('count(*)').from('posts').execute(function(error,rows,cols){
+    if (error) {
+      console.log('DB ERROR: ' + error);
+      return
+    }
+    js = {
+      "posts":rows[0]["count(*)"]
+    };
+    resJson(res,js);
+  })
 };
 
-routes["/getInfo.json"] = function(req,res,next,options,path) {
+routes["/getInfo.json"] = function(req,res,next,options,db,path) {
   js = {
     "options":options,
     "path":path
