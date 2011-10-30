@@ -35,7 +35,6 @@ var fs = require('fs')
  */
 
 var cldb = function(mysqldb) {
-  
   var db = mysqldb
   
   return {
@@ -57,7 +56,6 @@ exports = module.exports = function clhandler(options){
   if (!options.hasOwnProperty("DB_USER")) throw new Error('clhandler api requires DB_USER in options');
   
   //attempt to connect to database
-  
   var db;
   new mysql.Database({
     hostname: options["DB_SERV"],
