@@ -1,0 +1,7 @@
+This server requires node.js and connect.js:
+
+
+Get node 0.4.12 from here: http://nodejs.org/#download
+
+Then install connect (http://senchalabs.github.com/connect/) by running:
+> npm install connect
