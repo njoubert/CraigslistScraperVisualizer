@@ -1,7 +1,11 @@
-This server requires node.js and connectjs:
+This server requires node.js, connectjs and db-mysql:
 
 
 Get node 0.4.12 from here: http://nodejs.org/#download
 
 Then install connect (http://senchalabs.github.com/connect/) by running:
 > npm install connect
+
+Then install db-mysql (http://nodejsdb.org/db-mysql/):
+NOTE: this requires the mysql connector. if you don't have this, download http://dev.mysql.com/downloads/connector/c/#downloads
+> npm install db-mysql
