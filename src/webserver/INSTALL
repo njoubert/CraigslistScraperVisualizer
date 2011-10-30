@@ -1,4 +1,4 @@
-This server requires node.js and connect.js:
+This server requires node.js and connectjs:
 
 
 Get node 0.4.12 from here: http://nodejs.org/#download

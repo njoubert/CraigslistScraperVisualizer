@@ -5,8 +5,11 @@
 
 var connect = require('connect');
 
-var server = connect.createServer(
-  connect.favicon(),
-  connect.logger(),
-  connect.static(__dirname + '/../webclient'));
+function handle_data(req,res) {
+  console.log("handling data")
+}
+
+var server = connect.createServer(connect.logger('tiny'));
+server.use('/data', handle_data);
+server.use(connect.static(__dirname + '/../webclient'));
 server.listen(8080);
