@@ -4,8 +4,10 @@
 	"DB_BASE": "clvis",
 	"DB_USER": "clvisuser",
 	"DB_PASS": "PhAsp3fr",
-	
 	"CL_RSS_PAGE":"http://sfbay.craigslist.org/sfc/hhh/index.rss",
 	"WAIT_TIME":720,
-	"WAIT_OFFSET":300
+	"WAIT_OFFSET":300,
+	
+	"STATIC_BASEDIR": "/src/webclient"
+	
 }
