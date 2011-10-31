@@ -15,11 +15,13 @@ var config = JSON.parse(configfiledata)
 
 //set up all the layers in the server.
 //you can think of it as requests passing through the layers in the order given
-connect.createServer()
-  .use(connect.logger('tiny'))
-  .use(connect.staticCache())
-  .use('/data', clhandler(config))
-  .use(connect.static(__dirname + "/../.." + config.STATIC_BASEDIR))
-  .listen(config.WEBSERVER_PORT);
+var server = connect.createServer()
+server.use(connect.logger('tiny'))
+if (config.CACHE_ON) {
+  server.use(connect.staticCache())
+}
+server.use('/data', clhandler(config))
+server.use(connect.static(__dirname + "/../.." + config.STATIC_BASEDIR))
+server.listen(config.WEBSERVER_PORT);
   
 console.log("Listening on port " + config.WEBSERVER_PORT)
