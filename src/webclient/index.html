@@ -5,20 +5,35 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	<title>Craigslist Housing Visualizer</title>
-
+	<!-- Date: 2011-10-29 -->
 	<meta name="generator" content="TextMate http://macromates.com/">
 	<meta name="author" content="Niels Joubert">
 	<link rel="stylesheet" type="text/css" href="css/reset.css">
 	<link rel="stylesheet" type="text/css" href="css/site.css">
 	
 	<script type="text/javascript" src="jquery/jquery-1.6.4.min.js"></script> 
+  <script type="text/javascript" src="d3/d3.js"></script>
+  
+  <script type="text/javascript">
+  
+  
+ 
+//jQuery document initialization entrypoint 
+$(document).ready(function() {
+  $("#loading_message").show();
+  
 
-	<!-- Date: 2011-10-29 -->
+});  
+  </script>
 </head>
 <body>
 <div class="container">
   <h1>Craigslist Housing Vis</h1>
-
+<div class="page_center_float" id="loading_message_box">
+  <div class="middle_float" id="loading_message_content">
+    <img src="img/spinner3.gif" />Loading Data
+  </div>
+</div>
 
 </div>
 </body>

@@ -5,7 +5,47 @@
   margin:0 auto;
 }
 
-/* Typography: */
+.page_center_float {
+  text-align: left;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 200px;
+  margin-left: -100px;
+  height: 80px;
+  margin-top: -40px;
+}
+.middle_float {
+  margin: 0 auto;
+  text-align: center;
+  position: relative;
+}
+
+/* Typography */
 
 body {font-size:75%;color:#222;background:#fff;font-family:"Helvetica Neue", Arial, Helvetica, sans-serif;}
 h1, h2, h3, h4, h5, h6 {font-weight:normal;color:#111;}
+
+/* Specific Element Styling */
+
+#loading_message_box {
+  background:#DEEBF7 ;
+  border: 2px solid #9ECAE1;
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  padding: 5px;  
+}
+
+#loading_message_content {
+  color: #666;
+  font-size: 12pt;
+  margin-top: 22px;
+}
+
+#loading_message_content img {
+    vertical-align: middle;
+    margin-bottom: 5px;
+    margin-left: -5px;
+    margin-right: 10px;
+    margin-top: 1px;
+}
