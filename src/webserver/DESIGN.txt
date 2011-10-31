@@ -1,1 +1,0 @@
-Just send all the data to the client side. Done.
