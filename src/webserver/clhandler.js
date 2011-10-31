@@ -37,6 +37,8 @@ var fs = require('fs')
 var cldb = function(mysqldb) {
   var db = mysqldb
   
+  //for more info see: http://nodejsdb.org/db-mysql/
+  
   return {
     getCount: function(callback) {
       db.query().select('count(*)').from('posts').execute(function(error,rows,cols) {callback(error,rows[0]["count(*)"])});
