@@ -13,22 +13,73 @@
 	
 	<script type="text/javascript" src="jquery/jquery-1.6.4.min.js"></script> 
   <script type="text/javascript" src="d3-9520b07/d3.js"></script>
-  
   <script type="text/javascript">
-  
 
-
-function global_error(message) {
+function hide_loading_box() {
+  $("#loading_message_box").fadeOut('slow');
+}
+function change_loading_box(msg) {
+  $("#loading_message_text").html('<h4>'+msg+'</h4>');
+}
+function show_global_error(message) {
+  hide_loading_box();
   $("#error_message_content").html("<h2>critical error</h2><h3>Please reload the page, and contact us!</h3><p>" + message + "</p>");
   $("#error_message_box").show();
-}  
- 
+}
+
+//Here is our interface to the webserver data source.
+//This only provides us with raw data, and we perform transforms
+//on this after everything arrives
+function RawData() {
+  var dataptr = this //lame JS hack to keep a ptr around to the object
+
+  this.totalCount = 0;
+  this.posts = [];
+  this.nja = 5;
+  
+  var call_when_done = null
+  var arrived = 0;
+  var totalExpectedArrival = 0;
+  var markArrive = function() {
+    arrived += 1;
+    if (totalExpectedArrival == arrived) {
+      call_when_done(dataptr);
+    }
+  }
+
+  this.getAllData = function(on_done) {
+    call_when_done = on_done
+    totalExpectedArrival = 2
+    $.ajax("/data/getCount.json", { success: arriveCount, error: arriveError });
+    $.ajax("/data/getAll.json",   { success: arrivePosts, error: arriveError });
+  }
+  
+  var arriveError = function(jqXHR, textStatus, errorThrown) {
+    show_global_error(textStatus);
+  }
+  var arriveCount = function(data, textStatus, jqXHR) {
+    dataptr.totalCount = data.indx
+    markArrive();
+  }
+  var arrivePosts = function(data, textStatus, jqXHR) {
+    this.posts = data.indx;
+    markArrive();
+  }
+}
+
+function processData(raw_data) {
+  change_loading_box("Processing Data");
+  $("#posts_count").html("<h2>"+raw_data.totalCount+" posts in database, loaded " + raw_data.posts.length +"</h2>")
+  
+  hide_loading_box();
+}
+
+var raw_data = new RawData();
 //jQuery document initialization entrypoint 
 $(document).ready(function() {
   
-  //$("#loading_message_box").fadeOut('slow');
-  //global_error("As digital information becomes increasingly cheap and ubiquitous, how will we keep abreast with the rising tide of data? We investigate the perceptual, cognitive, and social factors involved in making sense of large data collections, and develop novel interactive systems for visual analysis and communication.");
-
+  raw_data.getAllData(processData)
+  
 });  
   </script>
 </head>
@@ -38,10 +89,11 @@ $(document).ready(function() {
   <div class="page_center_float" id="loading_message_box">
     <div class="middle_float" id="loading_message_content">
       <div id="loading_message_status">
-        <img src="img/spinner3.gif" /><h4>Loading Data</h4>
+        <img src="img/spinner3.gif" />
+        <span id="loading_message_text">
+        <h4>Loading Data</h4>
+        </span>
       </div>
-      <div id="loading_message_blurb">
-    </div>
     </div>
   </div>
   <div class="page_center_float" id="error_message_box">
@@ -74,6 +126,8 @@ $(document).ready(function() {
         This project is aimed at helping the prospective renter or buyer at evaluating their criteria by looking at the distribution of
         posts for these criteria on craigslist.
         </p>
+        
+        <div id="posts_count"><h2>no posts yet</h2></div>
   </div>
 
   
