@@ -20,4 +20,6 @@ connect.createServer()
   .use(connect.staticCache())
   .use('/data', clhandler(config))
   .use(connect.static(__dirname + "/../.." + config.STATIC_BASEDIR))
-  .listen(8080);
+  .listen(config.WEBSERVER_PORT);
+  
+console.log("Listening on port " + config.WEBSERVER_PORT)

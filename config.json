@@ -8,6 +8,7 @@
 	"WAIT_TIME":720,
 	"WAIT_OFFSET":300,
 	
-	"STATIC_BASEDIR": "/src/webclient"
+	"STATIC_BASEDIR": "/src/webclient",
+	"WEBSERVER_PORT": 8080
 	
 }
