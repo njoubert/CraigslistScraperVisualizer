@@ -26,6 +26,7 @@
 .leftside  { width: 475px; float: left; }
 .rightside { width: 475px; float: right; }
 .halfitem  {  }
+.item_heading { margin-bottom: 5px; margin-top: 5px;}
 
 /* Typography */
 
@@ -51,9 +52,11 @@ h4 {
 }
 p   { margin: 0 0 1em; }
 
+
 /* Specific Element Styling */
 
-#loading_message_box {   
+#loading_message_box { 
+  z-index: 100000;  
   height: 80px;  margin-top: -40px;
   background:#DEEBF7; border: 2px solid #9ECAE1; padding: 5px;  -webkit-border-radius: 10px; -moz-border-radius: 10px; }
 #loading_message_content { color: #666; font-size: 12pt; margin-top: 22px; }
@@ -61,11 +64,25 @@ p   { margin: 0 0 1em; }
 #loading_message_blurb {margin-top: 15px; font-size: 10pt;}
 
 #error_message_box {   
+  z-index: 200000;
   height: 350px;  margin-top: -175px;
   display: none; background:#FEE0D2; border: 2px solid #FC9272; padding: 5px;  -webkit-border-radius: 10px; -moz-border-radius: 10px; }
 #error_message_content { color: #666; font-size: 10pt; margin-top: 22px; }
 
-
 #attribution         { color: #888; margin-top: 3px;}
 #attribution a       { color: #888; }
 #attribution a:hover { color: #39C; }
+
+.item_heading h4 {
+  line-height: 23px;
+  margin-bottom: 0.5em;
+  font-variant: small-caps;
+  letter-spacing: 1px;
+  display: inline;
+  font-size: 1.5em;
+  font-weight: bold;
+  margin-right: 5px; 
+}
+.item_values {
+    color: #f6931f;
+}

@@ -20,7 +20,7 @@
   <script type="text/javascript">
 
 function hide_loading_box() {
-  $("#loading_message_box").fadeOut('fast');
+  $("#loading_message_box").hide();
 }
 function change_loading_box(msg) {
   $("#loading_message_box").show();
@@ -148,7 +148,18 @@ function Bounds() {
 }
 
 var raw_data = new RawData();
-var bounds = new Bounds();
+var bounds;
+
+function update_range_text() {
+  var pr = $("#price_slider").slider( "values" );
+  var br = $("#bedroomcount_slider").slider( "values" );
+  var sf = $("#sqft_slider").slider( "values" )
+  
+  $("#price_values").html("$"+pr[0]+" - $"+pr[1]);
+  $("#bedroomcount_values").html(""+br[0]+" - "+br[1]);
+  $("#sqft_values").html(""+sf[0]+"sqft - "+sf[1]+"sqft");
+
+}
 
 function init_ui(raw_data,bounds) {
   
@@ -156,29 +167,37 @@ function init_ui(raw_data,bounds) {
     range: true,
     min: bounds.pr[0],
     max: bounds.pr[1],
-    values: bounds.pr
+    values: bounds.pr,
+    slide: function(e,u) { update_range_text(); return true;},
+    stop: function() {reloadshit(false)}
   });
   
   $("#bedroomcount_slider").slider({
     range: true,
     min: bounds.br[0],
     max: bounds.br[1],
-    values: bounds.br
+    values: bounds.br,
+    slide: function(e,u) { update_range_text(); return true;},
+    stop: function() {reloadshit(false)}
   });
   
   $("#sqft_slider").slider({
     range: true,
     min: bounds.sf[0],
     max: bounds.sf[1],
-    values: bounds.sf
+    values: bounds.sf,
+    slide: function(e,u) { update_range_text(); return true;},
+    stop: function() {reloadshit(false)}
   });
   
+  update_range_text();
 }
 
-function processData(raw_data,first_time) {
+function processData(raw_data,completely_new) {
   change_loading_box("Processing Data");
   
-  if (first_time) {
+  if (completely_new) {
+    bounds = new Bounds()
     bounds.compute(raw_data);
     init_ui(raw_data,bounds);
   }
@@ -196,7 +215,9 @@ function reloadshit(completely_new) {
   d = new RawData();
   change_loading_box("Loading...");
   
-  var options = bounds.getQuery();
+  var options = {}
+  if (!completely_new) 
+    options = bounds.getQuery();
   options["city"] = $("#city_select").val();
   d.getAllData(options,function(data) {processData(data,completely_new);});
   
@@ -247,7 +268,7 @@ $(document).ready(function() {
       </div>
       <div class="rightside">
         <div class="halfitem">
-          <span class="item_heading">city</span>
+          <div class="item_heading"><h4>city</h4></div>
           <select id="city_select">
             <option value="sfc" selected>San Francisco</option>
             <option value="sby">South Bay</option>
@@ -258,15 +279,15 @@ $(document).ready(function() {
           </select>
         </div>
         <div class="halfitem">
-          <span class="item_heading">price</span>
+          <div class="item_heading"><h4>price</h4> <span class="item_values" id="price_values"></span></div>
           <div id="price_slider"></div>
         </div>
         <div class="halfitem">
-          <span class="item_heading">number of bedrooms</span>
+          <div class="item_heading"><h4>number of bedrooms</h4> <span class="item_values" id="bedroomcount_values"></div>
           <div id="bedroomcount_slider"></div>
         </div>
         <div class="halfitem">
-          <span class="item_heading">square footage</span>
+          <div class="item_heading"><h4>square footage</h4> <span class="item_values" id="sqft_values"></div>
           <div id="sqft_slider"></div>
           
 
