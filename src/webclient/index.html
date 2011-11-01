@@ -186,16 +186,19 @@ function processData(raw_data,first_time) {
   $("#po_count").html("<h2>"+ bounds.pr +" price range in database, loaded </h2>")
   $("#sq_count").html("<h2>"+ bounds.sf         +" posts in database, loaded </h2>")
   $("#bd_count").html("<h2>"+ bounds.br +" posts in database, loaded </h2>")
-  $("#pr_count").html("<h2>"+raw_data.posts_count              +" posts in database, loaded </h2>")
+  $("#pr_count").html("<h2>"+ raw_data.posts_count              +" posts in database, loaded </h2>")
   
   
   hide_loading_box();
 }
-
-function reloadshit() {
+ 
+function reloadshit(completely_new) {
   d = new RawData();
   change_loading_box("Loading...");
-  d.getAllData(bounds.getQuery(),function(data) {processData(data,false);});
+  
+  var options = bounds.getQuery();
+  options["city"] = $("#city_select").val();
+  d.getAllData(options,function(data) {processData(data,completely_new);});
   
 }
 
@@ -203,6 +206,7 @@ function reloadshit() {
 $(document).ready(function() {
   
   raw_data.getAllData(null,function(data) {processData(data,true);});
+  $("#city_select").change(function() {reloadshit(true);});
   
 });  
   </script>
@@ -243,19 +247,26 @@ $(document).ready(function() {
       </div>
       <div class="rightside">
         <div class="halfitem">
-          <h2>city</h2>
-          
+          <span class="item_heading">city</span>
+          <select id="city_select">
+            <option value="sfc" selected>San Francisco</option>
+            <option value="sby">South Bay</option>
+            <option value="eby">Easy Bay</option>
+            <option value="pen">Peninsula</option>
+            <option value="nby">North Bay</option>
+            <option value="scz">Santa Cruz</option>
+          </select>
         </div>
         <div class="halfitem">
-          <h2>price</h2>
+          <span class="item_heading">price</span>
           <div id="price_slider"></div>
         </div>
         <div class="halfitem">
-          <h2>number of bedrooms</h2>
+          <span class="item_heading">number of bedrooms</span>
           <div id="bedroomcount_slider"></div>
         </div>
         <div class="halfitem">
-          <h2>square footage</h2>
+          <span class="item_heading">square footage</span>
           <div id="sqft_slider"></div>
           
 
