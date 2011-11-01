@@ -19,6 +19,7 @@ function hide_loading_box() {
   $("#loading_message_box").fadeOut('slow');
 }
 function change_loading_box(msg) {
+  $("#loading_message_box").show();
   $("#loading_message_text").html('<h4>'+msg+'</h4>');
 }
 function show_global_error(message) {
@@ -47,15 +48,24 @@ function RawData() {
       call_when_done(dataptr);
     }
   }
-
-  this.getAllData = function(on_done) {
+  
+  this.get
+  
+  this.getAllData = function(options,on_done) {
     call_when_done = on_done
     totalExpectedArrival = 4
 
-    $.ajax("/data/get_price_dist.json",          { success: arrivePriceDist,        error: arriveError });
-    $.ajax("/data/get_sqft_dist.json",           { success: arriveSqftDist,         error: arriveError });
-    $.ajax("/data/get_bedroomcount_dist.json",   { success: arriveBedroomCountDist, error: arriveError });
-    $.ajax("/data/get_location_dist.json",       { success: arriveLocationDist,     error: arriveError });
+    if (options) {
+      $.ajax("/data/get_price_dist.json",          { data: options, success: arrivePriceDist,        error: arriveError });
+      $.ajax("/data/get_sqft_dist.json",           { data: options, success: arriveSqftDist,         error: arriveError });
+      $.ajax("/data/get_bedroomcount_dist.json",   { data: options, success: arriveBedroomCountDist, error: arriveError });
+      $.ajax("/data/get_location_dist.json",       { data: options, success: arriveLocationDist,     error: arriveError });            
+    } else {
+      $.ajax("/data/get_price_dist.json",          { success: arrivePriceDist,        error: arriveError });
+      $.ajax("/data/get_sqft_dist.json",           { success: arriveSqftDist,         error: arriveError });
+      $.ajax("/data/get_bedroomcount_dist.json",   { success: arriveBedroomCountDist, error: arriveError });
+      $.ajax("/data/get_location_dist.json",       { success: arriveLocationDist,     error: arriveError });      
+    }
     
   }
   
@@ -92,10 +102,25 @@ function Bounds() {
   this.br = [0,0];
   this.sf = [0,0];
   
+  this.pr_sel = [0,0]
+  this.br_sel = [0,0]
+  this.sf_sel = [0,0]
+  
   this.compute = function(raw_data) {
-    dataptr.pr = findBoundsInArray(raw_data.price_list)
-    dataptr.sf = findBoundsInArray(raw_data.sqft_list)
-    dataptr.br = findBoundsInArray(raw_data.bedroomcount_list)
+    dataptr.pr_sel = dataptr.pr = findBoundsInArray(raw_data.price_list)
+    dataptr.sf_sel = dataptr.sf = findBoundsInArray(raw_data.sqft_list)
+    dataptr.br_sel = dataptr.br = findBoundsInArray(raw_data.bedroomcount_list)
+  }
+  
+  this.getQuery = function() {
+    return {
+      "pmin" : this.pr_sel[0],
+      "pmax" : this.pr_sel[1],
+      "brmin": this.br_sel[0],
+      "brmax": this.br_sel[1],
+      "sqmin": this.sf_sel[0],
+      "sqmax": this.sf_sel[1]
+    }
   }
   
   var findBoundsInArray = function(arr) {
@@ -123,10 +148,12 @@ function Bounds() {
 var raw_data = new RawData();
 var bounds = new Bounds();
 
-function processData(raw_data) {
+function processData(raw_data,first_time) {
   change_loading_box("Processing Data");
   
-  bounds.compute(raw_data);
+  if (first_time) {
+    bounds.compute(raw_data);
+  }
   
   $("#po_count").html("<h2>"+ bounds.pr +" price range in database, loaded </h2>")
   $("#sq_count").html("<h2>"+ bounds.sf         +" posts in database, loaded </h2>")
@@ -134,15 +161,20 @@ function processData(raw_data) {
   $("#pr_count").html("<h2>"+raw_data.posts_count              +" posts in database, loaded </h2>")
   
   
-  
-  
   hide_loading_box();
+}
+
+function reloadshit() {
+  d = new RawData();
+  change_loading_box("Loading...");
+  d.getAllData(bounds.getQuery(),function(data) {processData(data,false);});
+  
 }
 
 //jQuery document initialization entrypoint 
 $(document).ready(function() {
   
-  raw_data.getAllData(processData)
+  raw_data.getAllData(null,function(data) {processData(data,true);});
   
 });  
   </script>
@@ -195,6 +227,8 @@ $(document).ready(function() {
         <div id="sq_count"><h2>no posts yet</h2></div>
         <div id="bd_count"><h2>no posts yet</h2></div>
         <div id="pr_count"><h2>no posts yet</h2></div>
+        
+        <a href="#" onClick="reloadshit(); return false;">HELLO</a>
 
   </div>
 
