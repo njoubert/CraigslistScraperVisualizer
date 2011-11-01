@@ -169,7 +169,7 @@ var returnArrayDist = function(res,index) {
 var returnObjectDist = function(res,index) {
   return function(err,data) {
     if (data.length > 500) {
-      resJson(res,{"error":"IT'S OVER 9000!"})
+      resJson(res,{"count":data.length})
     } else {
       resJson(res,data);
     }

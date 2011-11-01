@@ -33,9 +33,10 @@ function show_global_error(message) {
 function RawData() {
   var dataptr = this //lame JS hack to keep a ptr around to the object
 
-  this.totalCount = 0;
-  this.posts = [];
-  this.nja = 5;
+  this.price_list = [];
+  this.sqft_list = [];
+  this.bedroomcount_list = [];
+  this.posts_count = 0;
   
   var call_when_done = null
   var arrived = 0;
@@ -49,32 +50,95 @@ function RawData() {
 
   this.getAllData = function(on_done) {
     call_when_done = on_done
-    totalExpectedArrival = 2
-    $.ajax("/data/getCount.json", { success: arriveCount, error: arriveError });
-    $.ajax("/data/getAll.json",   { success: arrivePosts, error: arriveError });
+    totalExpectedArrival = 4
+
+    $.ajax("/data/get_price_dist.json",          { success: arrivePriceDist,        error: arriveError });
+    $.ajax("/data/get_sqft_dist.json",           { success: arriveSqftDist,         error: arriveError });
+    $.ajax("/data/get_bedroomcount_dist.json",   { success: arriveBedroomCountDist, error: arriveError });
+    $.ajax("/data/get_location_dist.json",       { success: arriveLocationDist,     error: arriveError });
+    
   }
   
   var arriveError = function(jqXHR, textStatus, errorThrown) {
     show_global_error(textStatus);
   }
-  var arriveCount = function(data, textStatus, jqXHR) {
-    dataptr.totalCount = data.indx
+  var arrivePriceDist = function(data, textStatus, jqXHR) {
+    dataptr.price_list = data
     markArrive();
   }
-  var arrivePosts = function(data, textStatus, jqXHR) {
-    this.posts = data.indx;
+  var arriveSqftDist = function(data, textStatus, jqXHR) {
+    dataptr.sqft_list = data
     markArrive();
   }
+  var arriveBedroomCountDist = function(data, textStatus, jqXHR) {
+    dataptr.bedroomcount_list = data
+    markArrive();
+  }
+  var arriveLocationDist = function(data, textStatus, jqXHR) {
+    if (data.count) {
+      dataptr.posts_count = data.count
+    } else {
+      dataptr.posts = data
+    }
+    markArrive();
+  }
+
 }
+
+function Bounds() {
+  var dataptr = this;
+  
+  this.pr = [0,0];
+  this.br = [0,0];
+  this.sf = [0,0];
+  
+  this.compute = function(raw_data) {
+    dataptr.pr = findBoundsInArray(raw_data.price_list)
+    dataptr.sf = findBoundsInArray(raw_data.sqft_list)
+    dataptr.br = findBoundsInArray(raw_data.bedroomcount_list)
+  }
+  
+  var findBoundsInArray = function(arr) {
+    var mymax = 0, mymin = 0;
+    for (var i = 0; i < arr.length; i++) {
+      if (arr[i] != null) {
+        mymax = arr[i];
+        mymin = arr[i];
+        break;
+      }
+    }
+    for (var i = 0; i < arr.length; i++) {
+      if (arr[i] != null) {
+        if (arr[i] > mymax)
+          mymax = arr[i];
+        if (arr[i] < mymin)
+          mymin = arr[i];
+      }
+    }
+    return [mymin,mymax];
+  }
+    
+}
+
+var raw_data = new RawData();
+var bounds = new Bounds();
 
 function processData(raw_data) {
   change_loading_box("Processing Data");
-  $("#posts_count").html("<h2>"+raw_data.totalCount+" posts in database, loaded " + raw_data.posts.length +"</h2>")
+  
+  bounds.compute(raw_data);
+  
+  $("#po_count").html("<h2>"+ bounds.pr +" price range in database, loaded </h2>")
+  $("#sq_count").html("<h2>"+ bounds.sf         +" posts in database, loaded </h2>")
+  $("#bd_count").html("<h2>"+ bounds.br +" posts in database, loaded </h2>")
+  $("#pr_count").html("<h2>"+raw_data.posts_count              +" posts in database, loaded </h2>")
+  
+  
+  
   
   hide_loading_box();
 }
 
-var raw_data = new RawData();
 //jQuery document initialization entrypoint 
 $(document).ready(function() {
   
@@ -127,7 +191,11 @@ $(document).ready(function() {
         posts for these criteria on craigslist.
         </p>
         
-        <div id="posts_count"><h2>no posts yet</h2></div>
+        <div id="po_count"><h2>no posts yet</h2></div>
+        <div id="sq_count"><h2>no posts yet</h2></div>
+        <div id="bd_count"><h2>no posts yet</h2></div>
+        <div id="pr_count"><h2>no posts yet</h2></div>
+
   </div>
 
   
