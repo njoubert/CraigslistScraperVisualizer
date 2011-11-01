@@ -91,6 +91,7 @@ function RawData() {
       dataptr.posts_count = data.count
     } else {
       dataptr.posts = data
+      dataptr.posts_count = data.length
     }
     markArrive();
   }
@@ -158,6 +159,8 @@ function update_range_text() {
   $("#price_values").html("$"+pr[0]+" - $"+pr[1]);
   $("#bedroomcount_values").html(""+br[0]+" - "+br[1]);
   $("#sqft_values").html(""+sf[0]+"sqft - "+sf[1]+"sqft");
+  
+  $("#city_values").html(""+raw_data.posts_count+" posts");
 
 }
 
@@ -169,7 +172,7 @@ function init_ui(raw_data,bounds) {
     max: bounds.pr[1],
     values: bounds.pr,
     slide: function(e,u) { update_range_text(); return true;},
-    stop: function() {reloadshit(false)}
+    stop: function() {update_range_text(); reloadshit(false)}
   });
   
   $("#bedroomcount_slider").slider({
@@ -178,7 +181,7 @@ function init_ui(raw_data,bounds) {
     max: bounds.br[1],
     values: bounds.br,
     slide: function(e,u) { update_range_text(); return true;},
-    stop: function() {reloadshit(false)}
+    stop: function() {update_range_text(); reloadshit(false)}
   });
   
   $("#sqft_slider").slider({
@@ -187,7 +190,7 @@ function init_ui(raw_data,bounds) {
     max: bounds.sf[1],
     values: bounds.sf,
     slide: function(e,u) { update_range_text(); return true;},
-    stop: function() {reloadshit(false)}
+    stop: function() {update_range_text(); reloadshit(false)}
   });
   
   update_range_text();
@@ -201,25 +204,19 @@ function processData(raw_data,completely_new) {
     bounds.compute(raw_data);
     init_ui(raw_data,bounds);
   }
-  
-  $("#po_count").html("<h2>"+ bounds.pr +" price range in database, loaded </h2>")
-  $("#sq_count").html("<h2>"+ bounds.sf         +" posts in database, loaded </h2>")
-  $("#bd_count").html("<h2>"+ bounds.br +" posts in database, loaded </h2>")
-  $("#pr_count").html("<h2>"+ raw_data.posts_count              +" posts in database, loaded </h2>")
-  
-  
+  update_range_text();
   hide_loading_box();
 }
  
 function reloadshit(completely_new) {
-  d = new RawData();
+  raw_data = new RawData();
   change_loading_box("Loading...");
   
   var options = {}
   if (!completely_new) 
     options = bounds.getQuery();
   options["city"] = $("#city_select").val();
-  d.getAllData(options,function(data) {processData(data,completely_new);});
+  raw_data.getAllData(options,function(data) {processData(raw_data,completely_new);});
   
 }
 
@@ -268,7 +265,7 @@ $(document).ready(function() {
       </div>
       <div class="rightside">
         <div class="halfitem">
-          <div class="item_heading"><h4>city</h4></div>
+          <div class="item_heading"><h4>city</h4> <span class="item_values" id="city_values"></span></div>
           <select id="city_select">
             <option value="sfc" selected>San Francisco</option>
             <option value="sby">South Bay</option>
@@ -311,13 +308,6 @@ $(document).ready(function() {
         This project is aimed at helping the prospective renter or buyer at evaluating their criteria by looking at the distribution of
         posts for these criteria on craigslist.
         </p>
-        
-        <div id="po_count"><h2>no posts yet</h2></div>
-        <div id="sq_count"><h2>no posts yet</h2></div>
-        <div id="bd_count"><h2>no posts yet</h2></div>
-        <div id="pr_count"><h2>no posts yet</h2></div>
-        
-        <a href="#" onClick="reloadshit(); return false;">HELLO</a>
 
   </div>
 
