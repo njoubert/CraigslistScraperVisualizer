@@ -39,6 +39,17 @@ var cldb = function(mysqldb) {
   
   //for more info see: http://nodejsdb.org/db-mysql/
   
+  var validateFilters = function(filters) {
+      filters = filters || {}
+      
+      if (!filters.city)
+        filters.city = 'sfc'
+      if (!filters.limit)
+        filters.limit = 10000
+        
+      return filters;    
+  }
+  
   return {
     getCount: function(callback) {
       db.query().select('count(*)').from('posts').execute(function(error,rows,cols) {callback(error,rows[0]["count(*)"])});
@@ -52,14 +63,11 @@ var cldb = function(mysqldb) {
     },
     
     /* Distribution methods: */
-    getSomeDist: function(what,filters,callback) {
-      filters = filters || {}
-      
-      if (!filters.city)
-        filters.city = 'sfc'
+    getSomeDist: function(name,dbwhat,filters,callback) {
+      filters = validateFilters(filters)
       
       var querystr = ""
-      querystr +=   "SELECT PI." + what
+      querystr +=   "SELECT " + dbwhat
       querystr +=   "    FROM posts P, post_instance PI where P.id = PI.post_id "
       querystr +=   "      AND P.section='apa' "
       querystr +=   "      AND P.city='"+filters.city+"' "
@@ -73,11 +81,10 @@ var cldb = function(mysqldb) {
       }
       querystr += "      AND PI.id = (SELECT MAX(id) FROM post_instance PI_p where PI_p.post_id = PI.post_id) "
       querystr += "      ORDER BY PI.id DESC "
-      querystr += "      LIMIT 10000;    "
-
+      querystr += "      LIMIT "+filters.limit+";    "
+      
       db.query(querystr).execute(function(error,rows,cols) {callback(error,rows)});
     }
-
   }
 }
 
@@ -152,11 +159,20 @@ var resDBdata = function(res,indx) {
 var returnArrayDist = function(res,index) {
   return function(err,data) {
     var js = [];
-    console.log(data);
     for (var i = 0; i < data.length; i++) {
       js.push(data[i][index])
     }
     resJson(res,js);
+  };      
+}
+
+var returnObjectDist = function(res,index) {
+  return function(err,data) {
+    if (data.length > 500) {
+      resJson(res,{"error":"IT'S OVER 9000!"})
+    } else {
+      resJson(res,data);
+    }
   };      
 }
 
@@ -165,20 +181,20 @@ var returnArrayDist = function(res,index) {
  */
 var routes = { }
 
-routes['/getPosts.json'] = function(req,res,next,options,db,path) {
-  db.getPosts(resDBdata(res,"posts"));
+routes['/getLocations.json'] = function(req,res,next,options,db,path) {
+  db.getLocations(resDBdata(res,"posts"));
 };
 
-
-
-var defineDistRoute = function(name) {
+var defineDistRoute = function(name,dbwhat,formatter) {
   routes['/get_'+name+'_dist.json'] = function(req,res,next,options,db,path) {
-    db.getSomeDist(name, req.query, returnArrayDist(res,name));
+    db.getSomeDist(name, dbwhat, req.query, formatter(res,name));
   };
 }
-defineDistRoute("price");
-defineDistRoute("sqft");
-defineDistRoute("bedroomcount");
+defineDistRoute("price", "PI.price",returnArrayDist);
+defineDistRoute("sqft", "PI.sqft",returnArrayDist);
+defineDistRoute("bedroomcount", "PI.bedroomcount",returnArrayDist);
+defineDistRoute("location", "PI.title, PI.price, PI.sqft, PI.bedroomcount, PI.loc_xstreet0, PI.loc_xstreet1, PI.loc_city, PI.loc_region, PI.loc_link",returnObjectDist);
+
 
 
 routes["/getCount.json"] = function(req,res,next,options,db,path) {
