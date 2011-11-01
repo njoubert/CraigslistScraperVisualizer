@@ -17,6 +17,7 @@ var config = JSON.parse(configfiledata)
 //you can think of it as requests passing through the layers in the order given
 var server = connect.createServer()
 server.use(connect.logger('tiny'))
+server.use(connect.query())
 if (config.CACHE_ON) {
   server.use(connect.staticCache())
 }

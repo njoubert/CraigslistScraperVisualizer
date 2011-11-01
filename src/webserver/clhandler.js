@@ -45,7 +45,39 @@ var cldb = function(mysqldb) {
     },
     getPosts: function(callback) {
       db.query().select('*').from('posts').limit(10000).execute(function(error,rows,cols) {callback(error,rows)});
+    },
+    getAll: function(callback) {
+      db.query('SELECT * FROM posts p, post_instance pi WHERE p.city=\'sfc\' AND p.id = pi.post_id LIMIT 10000;')
+      .execute(function(error,rows,cols) {callback(error,rows)});
+    },
+    
+    /* Distribution methods: */
+    getSomeDist: function(what,filters,callback) {
+      filters = filters || {}
+      
+      if (!filters.city)
+        filters.city = 'sfc'
+      
+      var querystr = ""
+      querystr +=   "SELECT PI." + what
+      querystr +=   "    FROM posts P, post_instance PI where P.id = PI.post_id "
+      querystr +=   "      AND P.section='apa' "
+      querystr +=   "      AND P.city='"+filters.city+"' "
+      if (filters.pmin && filters.pmax && filters.brmin && filters.brmax && filters.sqmin && filters.sqmax) {
+        querystr += "      AND (PI.price >='"       +filters.pmin        +"' OR PI.price=NULL)"
+        querystr += "      AND (PI.price <='"       +filters.pmax        +"' OR PI.price=NULL)"
+        querystr += "      AND (PI.bedroomcount >='"+filters.brmin       +"' OR PI.bedroomcount=NULL)"
+        querystr += "      AND (PI.bedroomcount <='"+filters.brmax       +"' OR PI.bedroomcount=NULL)"
+        querystr += "      AND (PI.sqft >='"        +filters.sqmin       +"' OR PI.sqft=NULL)"
+        querystr += "      AND (PI.sqft <='"        +filters.sqmax       +"' OR PI.sqft=NULL)"
+      }
+      querystr += "      AND PI.id = (SELECT MAX(id) FROM post_instance PI_p where PI_p.post_id = PI.post_id) "
+      querystr += "      ORDER BY PI.id DESC "
+      querystr += "      LIMIT 10000;    "
+
+      db.query(querystr).execute(function(error,rows,cols) {callback(error,rows)});
     }
+
   }
 }
 
@@ -111,10 +143,21 @@ var resDBdata = function(res,indx) {
       console.log("DB Error: " + err);
       js = { "error":err };
     } else {
-      js = { indx:data };
+      js = data;
     }
     resJson(res,js);
   };    
+}
+
+var returnArrayDist = function(res,index) {
+  return function(err,data) {
+    var js = [];
+    console.log(data);
+    for (var i = 0; i < data.length; i++) {
+      js.push(data[i][index])
+    }
+    resJson(res,js);
+  };      
 }
 
 /**
@@ -122,18 +165,22 @@ var resDBdata = function(res,indx) {
  */
 var routes = { }
 
-routes['/getAll.json'] = function(req,res,next,options,db,path) {
+routes['/getPosts.json'] = function(req,res,next,options,db,path) {
   db.getPosts(resDBdata(res,"posts"));
 };
 
+
+
+var defineDistRoute = function(name) {
+  routes['/get_'+name+'_dist.json'] = function(req,res,next,options,db,path) {
+    db.getSomeDist(name, req.query, returnArrayDist(res,name));
+  };
+}
+defineDistRoute("price");
+defineDistRoute("sqft");
+defineDistRoute("bedroomcount");
+
+
 routes["/getCount.json"] = function(req,res,next,options,db,path) {
   db.getCount(resDBdata(res,"posts_count"));
-};
-
-routes["/getInfo.json"] = function(req,res,next,options,db,path) {
-  js = {
-    "options":options,
-    "path":path
-  }
-  resJson(res,js);
 };
