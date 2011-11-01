@@ -10,13 +10,17 @@
 	<meta name="author" content="Niels Joubert">
 	<link rel="stylesheet" type="text/css" href="css/reset.css">
 	<link rel="stylesheet" type="text/css" href="css/site.css">
+
+	<link rel="stylesheet" type="text/css" href="css/smoothness/jquery-ui-1.8.16.custom.css">
 	
 	<script type="text/javascript" src="jquery/jquery-1.6.4.min.js"></script> 
+	<script type="text/javascript" src="jquery/jquery-ui-1.8.16.custom.min.js"></script> 
+	
   <script type="text/javascript" src="d3-9520b07/d3.js"></script>
   <script type="text/javascript">
 
 function hide_loading_box() {
-  $("#loading_message_box").fadeOut('slow');
+  $("#loading_message_box").fadeOut('fast');
 }
 function change_loading_box(msg) {
   $("#loading_message_box").show();
@@ -48,8 +52,6 @@ function RawData() {
       call_when_done(dataptr);
     }
   }
-  
-  this.get
   
   this.getAllData = function(options,on_done) {
     call_when_done = on_done
@@ -148,11 +150,37 @@ function Bounds() {
 var raw_data = new RawData();
 var bounds = new Bounds();
 
+function init_ui(raw_data,bounds) {
+  
+  $("#price_slider").slider({
+    range: true,
+    min: bounds.pr[0],
+    max: bounds.pr[1],
+    values: bounds.pr
+  });
+  
+  $("#bedroomcount_slider").slider({
+    range: true,
+    min: bounds.br[0],
+    max: bounds.br[1],
+    values: bounds.br
+  });
+  
+  $("#sqft_slider").slider({
+    range: true,
+    min: bounds.sf[0],
+    max: bounds.sf[1],
+    values: bounds.sf
+  });
+  
+}
+
 function processData(raw_data,first_time) {
   change_loading_box("Processing Data");
   
   if (first_time) {
     bounds.compute(raw_data);
+    init_ui(raw_data,bounds);
   }
   
   $("#po_count").html("<h2>"+ bounds.pr +" price range in database, loaded </h2>")
@@ -208,6 +236,35 @@ $(document).ready(function() {
   </div>
   
   <div class="content">
+    
+    <div id="databox">
+      <div class="leftside">
+        <div class="halfitem">MAP</div>
+      </div>
+      <div class="rightside">
+        <div class="halfitem">
+          <h2>city</h2>
+          
+        </div>
+        <div class="halfitem">
+          <h2>price</h2>
+          <div id="price_slider"></div>
+        </div>
+        <div class="halfitem">
+          <h2>number of bedrooms</h2>
+          <div id="bedroomcount_slider"></div>
+        </div>
+        <div class="halfitem">
+          <h2>square footage</h2>
+          <div id="sqft_slider"></div>
+          
+
+        </div>
+
+      </div>
+    </div>
+    
+    
         <p>
         When searching for housing, we start by picking criteria, examples are price, location, bedrooms and square footage.
         We then examine the available house postings to find matches for these criteria. Once we've found a set of matches,

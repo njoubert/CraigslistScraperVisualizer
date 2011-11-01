@@ -22,6 +22,11 @@
 .left_float   { display: inline; position: relative; float: left; }
 .right_float  { display: inline; position: relative; float: right; }
 
+#databox   { height: 400px; }
+.leftside  { width: 475px; float: left; }
+.rightside { width: 475px; float: right; }
+.halfitem  {  }
+
 /* Typography */
 
 html { font-size:100.01%; }
