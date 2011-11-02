@@ -4,7 +4,7 @@
 }
 .header {
   padding: 2px 0px 0px 0px;
-  margin-bottom: 0.5em;
+  margin-bottom: 0.0em;
   border-bottom: 1px solid #DDD;
   height: 26px;
   line-height: 23px;
@@ -31,7 +31,7 @@
 .histogram {height: 140px; }
 
 #map_canvas {width: 450px; height: 400px; margin: 5px 5px 5px 0px;}
-
+#blurbshit {width: 450px; text-align: justify;}
 /* Typography */
 
 html { font-size:100.01%; }
