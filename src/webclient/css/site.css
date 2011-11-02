@@ -22,12 +22,13 @@
 .left_float   { display: inline; position: relative; float: left; }
 .right_float  { display: inline; position: relative; float: right; }
 
-#databox   { height: 400px; }
+#databox   { height: 400px; display: block; }
 .leftside  { width: 475px; float: left; }
 .rightside { width: 475px; float: right; }
 .halfitem  {  }
 .item_heading { margin-bottom: 5px; margin-top: 5px;}
-
+.slider {height: 12px; margin-top: 3px; }
+.histogram {height: 140px; background: #aae;}
 /* Typography */
 
 html { font-size:100.01%; }

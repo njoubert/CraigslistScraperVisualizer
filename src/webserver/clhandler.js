@@ -72,17 +72,18 @@ var cldb = function(mysqldb) {
       querystr +=   "      AND P.section='apa' "
       querystr +=   "      AND P.city='"+filters.city+"' "
       if (filters.pmin && filters.pmax && filters.brmin && filters.brmax && filters.sqmin && filters.sqmax) {
-        querystr += "      AND (PI.price >='"       +filters.pmin        +"' OR PI.price=NULL)"
-        querystr += "      AND (PI.price <='"       +filters.pmax        +"' OR PI.price=NULL)"
-        querystr += "      AND (PI.bedroomcount >='"+filters.brmin       +"' OR PI.bedroomcount=NULL)"
-        querystr += "      AND (PI.bedroomcount <='"+filters.brmax       +"' OR PI.bedroomcount=NULL)"
-        querystr += "      AND (PI.sqft >='"        +filters.sqmin       +"' OR PI.sqft=NULL)"
-        querystr += "      AND (PI.sqft <='"        +filters.sqmax       +"' OR PI.sqft=NULL)"
+        querystr += "      AND (PI.price >='"       +filters.pmin        +"' OR        PI.price IS NULL)"
+        querystr += "      AND (PI.price <='"       +filters.pmax        +"' OR        PI.price IS NULL)"
+        querystr += "      AND (PI.bedroomcount >='"+filters.brmin       +"' OR PI.bedroomcount IS NULL)"
+        querystr += "      AND (PI.bedroomcount <='"+filters.brmax       +"' OR PI.bedroomcount IS NULL)"
+        querystr += "      AND (PI.sqft >='"        +filters.sqmin       +"' OR         PI.sqft IS NULL)"
+        querystr += "      AND (PI.sqft <='"        +filters.sqmax       +"' OR         PI.sqft IS NULL)"
       }
       querystr += "      AND PI.id = (SELECT MAX(id) FROM post_instance PI_p where PI_p.post_id = PI.post_id) "
       querystr += "      ORDER BY PI.id DESC "
       querystr += "      LIMIT "+filters.limit+";    "
       
+      console.log(querystr)
       db.query(querystr).execute(function(error,rows,cols) {callback(error,rows)});
     }
   }
@@ -193,7 +194,7 @@ var defineDistRoute = function(name,dbwhat,formatter) {
 defineDistRoute("price", "PI.price",returnArrayDist);
 defineDistRoute("sqft", "PI.sqft",returnArrayDist);
 defineDistRoute("bedroomcount", "PI.bedroomcount",returnArrayDist);
-defineDistRoute("location", "PI.title, PI.price, PI.sqft, PI.bedroomcount, PI.loc_xstreet0, PI.loc_xstreet1, PI.loc_city, PI.loc_region, PI.loc_link",returnObjectDist);
+defineDistRoute("location", "PI.title, P.last_seen, PI.price, PI.sqft, PI.bedroomcount, PI.loc_xstreet0, PI.loc_xstreet1, PI.loc_city, PI.loc_region, PI.loc_link",returnObjectDist);
 
 
 

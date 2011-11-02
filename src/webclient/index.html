@@ -117,12 +117,12 @@ function Bounds() {
   
   this.getQuery = function() {
     return {
-      "pmin" : this.pr_sel[0],
-      "pmax" : this.pr_sel[1],
-      "brmin": this.br_sel[0],
-      "brmax": this.br_sel[1],
-      "sqmin": this.sf_sel[0],
-      "sqmax": this.sf_sel[1]
+      "pmin" : dataptr.pr_sel[0],
+      "pmax" : dataptr.pr_sel[1],
+      "brmin": dataptr.br_sel[0],
+      "brmax": dataptr.br_sel[1],
+      "sqmin": dataptr.sf_sel[0],
+      "sqmax": dataptr.sf_sel[1]
     }
   }
   
@@ -156,10 +156,13 @@ function update_range_text() {
   var br = $("#bedroomcount_slider").slider( "values" );
   var sf = $("#sqft_slider").slider( "values" )
   
+  bounds.pr_sel = pr;
+  bounds.br_sel = br;
+  bounds.sf_sel = sf;
+  
   $("#price_values").html("$"+pr[0]+" - $"+pr[1]);
   $("#bedroomcount_values").html(""+br[0]+" - "+br[1]);
   $("#sqft_values").html(""+sf[0]+"sqft - "+sf[1]+"sqft");
-  
   $("#city_values").html(""+raw_data.posts_count+" posts");
 
 }
@@ -258,10 +261,13 @@ $(document).ready(function() {
   </div>
   
   <div class="content">
-    
+        
     <div id="databox">
       <div class="leftside">
-        <div class="halfitem">MAP</div>
+            This data is <em>live</em> from Craigslist.
+        <div class="halfitem">
+          <div class="item_heading"><h4>map</h4></div>
+        </div>
       </div>
       <div class="rightside">
         <div class="halfitem">
@@ -277,15 +283,18 @@ $(document).ready(function() {
         </div>
         <div class="halfitem">
           <div class="item_heading"><h4>price</h4> <span class="item_values" id="price_values"></span></div>
-          <div id="price_slider"></div>
+          <div class="histogram" id="price_histogram"></div>
+          <div class="slider"    id="price_slider"></div>
         </div>
         <div class="halfitem">
           <div class="item_heading"><h4>number of bedrooms</h4> <span class="item_values" id="bedroomcount_values"></div>
-          <div id="bedroomcount_slider"></div>
+          <div class="histogram" id="bedroomcount_histogram"></div>
+          <div class="slider"    id="bedroomcount_slider"></div>
         </div>
         <div class="halfitem">
           <div class="item_heading"><h4>square footage</h4> <span class="item_values" id="sqft_values"></div>
-          <div id="sqft_slider"></div>
+          <div class="histogram" id="sqft_histogram"></div>
+          <div class="slider"    id="sqft_slider"></div>
           
 
         </div>
