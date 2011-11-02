@@ -46,6 +46,19 @@ var cldb = function(mysqldb) {
         filters.city = 'sfc'
       if (!filters.limit)
         filters.limit = 10000
+      if (!filters.pmax)
+        filters.pmax = 7000
+      if (!filters.pmin)
+        filters.pmin = 100
+      if (!filters.brmin)
+        filters.brmin = 0
+      if (!filters.brmax)
+        filters.brmax = 10
+      if (!filters.sqmin)
+        filters.sqmin = 0
+      if (!filters.sqmax)
+        filters.sqmax = 10000
+        
         
       return filters;    
   }
@@ -71,13 +84,15 @@ var cldb = function(mysqldb) {
       querystr +=   "    FROM posts P, post_instance PI where P.id = PI.post_id "
       querystr +=   "      AND P.section='apa' "
       querystr +=   "      AND P.city='"+filters.city+"' "
-      if (filters.pmin && filters.pmax && filters.brmin && filters.brmax && filters.sqmin && filters.sqmax) {
-        querystr += "      AND (PI.price >='"       +filters.pmin        +"' OR        PI.price IS NULL)"
-        querystr += "      AND (PI.price <='"       +filters.pmax        +"' OR        PI.price IS NULL)"
-        querystr += "      AND (PI.bedroomcount >='"+filters.brmin       +"' OR PI.bedroomcount IS NULL)"
-        querystr += "      AND (PI.bedroomcount <='"+filters.brmax       +"' OR PI.bedroomcount IS NULL)"
-        querystr += "      AND (PI.sqft >='"        +filters.sqmin       +"' OR         PI.sqft IS NULL)"
-        querystr += "      AND (PI.sqft <='"        +filters.sqmax       +"' OR         PI.sqft IS NULL)"
+      if (filters.pmin && filters.pmax) {
+        querystr += "      AND (PI.price >='"       +filters.pmin        +"')"; //" OR        PI.price IS NULL)"
+        querystr += "      AND (PI.price <='"       +filters.pmax        +"')"; //" OR        PI.price IS NULL)"        
+      } 
+      if (filters.brmin && filters.brmax && filters.sqmin && filters.sqmax) {
+        querystr += "      AND (PI.bedroomcount >='"+filters.brmin       +"')";//" OR PI.bedroomcount IS NULL)"
+        querystr += "      AND (PI.bedroomcount <='"+filters.brmax       +"')";//" OR PI.bedroomcount IS NULL)"
+        querystr += "      AND (PI.sqft >='"        +filters.sqmin       +"')";//" OR         PI.sqft IS NULL)"
+        querystr += "      AND (PI.sqft <='"        +filters.sqmax       +"')";//" OR         PI.sqft IS NULL)"
       }
       querystr += "      AND PI.id = (SELECT MAX(id) FROM post_instance PI_p where PI_p.post_id = PI.post_id) "
       querystr += "      ORDER BY PI.id DESC "
@@ -169,11 +184,11 @@ var returnArrayDist = function(res,index) {
 
 var returnObjectDist = function(res,index) {
   return function(err,data) {
-    if (data.length > 500) {
-      resJson(res,{"count":data.length})
-    } else {
+    //if (data.length > 500) {
+    //  resJson(res,{"count":data.length})
+    //} else {
       resJson(res,data);
-    }
+    //}
   };      
 }
 
