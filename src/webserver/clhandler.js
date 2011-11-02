@@ -84,16 +84,14 @@ var cldb = function(mysqldb) {
       querystr +=   "    FROM posts P, post_instance PI where P.id = PI.post_id "
       querystr +=   "      AND P.section='apa' "
       querystr +=   "      AND P.city='"+filters.city+"' "
-      if (filters.pmin && filters.pmax) {
-        querystr += "      AND (PI.price >='"       +filters.pmin        +"')"; //" OR        PI.price IS NULL)"
-        querystr += "      AND (PI.price <='"       +filters.pmax        +"')"; //" OR        PI.price IS NULL)"        
-      } 
-      if (filters.brmin && filters.brmax && filters.sqmin && filters.sqmax) {
-        querystr += "      AND (PI.bedroomcount >='"+filters.brmin       +"')";//" OR PI.bedroomcount IS NULL)"
-        querystr += "      AND (PI.bedroomcount <='"+filters.brmax       +"')";//" OR PI.bedroomcount IS NULL)"
-        querystr += "      AND (PI.sqft >='"        +filters.sqmin       +"')";//" OR         PI.sqft IS NULL)"
-        querystr += "      AND (PI.sqft <='"        +filters.sqmax       +"')";//" OR         PI.sqft IS NULL)"
-      }
+      //if (filters.pmin && filters.pmax && filters.brmin && filters.brmax && filters.sqmin && filters.sqmax) {
+        querystr += "      AND (PI.price >='"       +filters.pmin        +"' AND PI.price IS NOT NULL)"; //" OR        PI.price IS NULL)"
+        querystr += "      AND (PI.price <='"       +filters.pmax        +"' AND PI.price IS NOT NULL)"; //" OR        PI.price IS NULL)"        
+        querystr += "      AND (PI.bedroomcount >='"+filters.brmin       +"' AND PI.bedroomcount IS NOT NULL)";//" OR PI.bedroomcount IS NULL)"
+        querystr += "      AND (PI.bedroomcount <='"+filters.brmax       +"' AND PI.bedroomcount IS NOT NULL)";//" OR PI.bedroomcount IS NULL)"
+        querystr += "      AND (PI.sqft >='"        +filters.sqmin       +"' AND PI.sqft IS NOT NULL)";//" OR         PI.sqft IS NULL)"
+        querystr += "      AND (PI.sqft <='"        +filters.sqmax       +"' AND PI.sqft IS NOT NULL)";//" OR         PI.sqft IS NULL)"
+      //}
       querystr += "      AND PI.id = (SELECT MAX(id) FROM post_instance PI_p where PI_p.post_id = PI.post_id) "
       querystr += "      ORDER BY PI.id DESC "
       querystr += "      LIMIT "+filters.limit+";    "

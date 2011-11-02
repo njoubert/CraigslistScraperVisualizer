@@ -17,6 +17,9 @@
   
 	<script type="text/javascript" src="jquery/jquery-1.6.4.min.js"></script> 
 	<script type="text/javascript" src="jquery/jquery-ui-1.8.16.custom.min.js"></script> 
+
+	<script type="text/javascript" src="get_price_dist.json"></script> 
+
 	
 	<script type="text/javascript">
 
@@ -39,7 +42,7 @@ function show_global_error(message) {
 function RawData() {
   var dataptr = this //lame JS hack to keep a ptr around to the object
 
-  this.price_list = [];
+  this.price_list = STARTUP_PRICE_DIST;
   this.sqft_list = [];
   this.bedroomcount_list = [];
   this.posts_count = 0;
@@ -205,6 +208,16 @@ function init_ui(raw_data,bounds) {
   update_range_text();
 }
 
+
+
+
+var p_x  = null
+var p_y  = null
+var bd_x = null
+var bd_y = null
+var sq_x = null
+var sq_y = null
+
 function update_histograms(raw_data,completely_new) {
   var w = histogram_width,
       h = histogram_height;
@@ -214,68 +227,83 @@ function update_histograms(raw_data,completely_new) {
     (raw_data.price_list);
   var c_bedroomcount_histogram = d3.layout.histogram()
     .range(bounds.br)
+    .bins([1,2,3,4,5,6,7,8,9])
     (raw_data.bedroomcount_list);
   var c_sqft_histogram = d3.layout.histogram()
     .range(bounds.sf)
     (raw_data.sqft_list);
   
- 
-  var p_x = d3.scale.ordinal()
-      .domain(c_price_histogram.map(function(d) { return d.x; }))
-      .rangeRoundBands([0, w]); 
-  var p_y = d3.scale.linear()
-      .domain([0, d3.max(c_price_histogram, function(d) { return d.y; })])
-      .range([0, h]);
+  if (completely_new) {
+    p_x = d3.scale.ordinal()
+        .domain(c_price_histogram.map(function(d) { return d.x; }))
+        .rangeRoundBands([0, w]); 
+    p_y = d3.scale.linear()
+        .domain([0, d3.max(c_price_histogram, function(d) { return d.y; })])
+        .range([0, h]);
+
+    bd_x = d3.scale.ordinal()
+        .domain(c_bedroomcount_histogram.map(function(d) { return d.x; }))
+        .rangeRoundBands([0, w]); 
+    bd_y = d3.scale.linear()
+        .domain([0, d3.max(c_bedroomcount_histogram, function(d) { return d.y; })])
+        .range([0, h]);
+
+    sq_x = d3.scale.ordinal()
+        .domain(c_sqft_histogram.map(function(d) { return d.x; }))
+        .rangeRoundBands([0, w]); 
+    sq_y = d3.scale.linear()
+        .domain([0, d3.max(c_sqft_histogram, function(d) { return d.y; })])
+        .range([0, h]);
   
-  var bd_x = d3.scale.ordinal()
-      .domain(c_bedroomcount_histogram.map(function(d) { return d.x; }))
-      .rangeRoundBands([0, w]); 
-  var bd_y = d3.scale.linear()
-      .domain([0, d3.max(c_bedroomcount_histogram, function(d) { return d.y; })])
-      .range([0, h]);
-  
-  var sq_x = d3.scale.ordinal()
-      .domain(c_sqft_histogram.map(function(d) { return d.x; }))
-      .rangeRoundBands([0, w]); 
-  var sq_y = d3.scale.linear()
-      .domain([0, d3.max(c_sqft_histogram, function(d) { return d.y; })])
-      .range([0, h]);
+    c_price.selectAll("rect").remove()
+    c_price.selectAll("rect")
+        .data(c_price_histogram)
+      .enter().append("svg:rect")
+        .attr("x", function(d) { return p_x(d.x); })
+        .attr("y", 0)
+        .attr("width", p_x.rangeBand())
+        .attr("height", function(d) { return p_y(d.y); })
 
-  c_price.selectAll("rect")
-      .data(c_price_histogram)
-    .enter().append("svg:rect")
-      .attr("transform", function(d) { return "translate(" + p_x(d.x) + "," + (h - p_y(d.y)) + ")"; })
-      .attr("width", p_x.rangeBand())
-      .attr("y", function(d) { return p_y(d.y); })
-      .attr("height", 0)
-    .transition()
-      .duration(750)
-      .attr("y", 0)
-      .attr("height", function(d) { return p_y(d.y); });
+    c_bedroomcount.selectAll("rect").remove()
+    c_bedroomcount.selectAll("rect")
+        .data(c_bedroomcount_histogram)
+      .enter().append("svg:rect")
+        .attr("x", function(d) { return bd_x(d.x); })
+        .attr("y", 0)
+        .attr("width", bd_x.rangeBand())
+        .attr("height", function(d) { return bd_y(d.y); })
 
-  c_bedroomcount.selectAll("rect")
-      .data(c_bedroomcount_histogram)
-    .enter().append("svg:rect")
-      .attr("transform", function(d) { return "translate(" + bd_x(d.x) + "," + (h - bd_y(d.y)) + ")"; })
-      .attr("width", bd_x.rangeBand())
-      .attr("y", function(d) { return bd_y(d.y); })
-      .attr("height", 0)
-    .transition()
-      .duration(750)
-      .attr("y", 0)
-      .attr("height", function(d) { return bd_y(d.y); });
+    c_sqft.selectAll("rect").remove()
+    c_sqft.selectAll("rect")
+        .data(c_sqft_histogram)
+      .enter().append("svg:rect")
+        .attr("x", function(d) { return sq_x(d.x); })
+        .attr("y", 0)
+        .attr("width", sq_x.rangeBand())
+        .attr("height", function(d) { return sq_y(d.y); })
+  } 
 
-  c_sqft.selectAll("rect")
-      .data(c_sqft_histogram)
-    .enter().append("svg:rect")
-      .attr("transform", function(d) { return "translate(" + sq_x(d.x) + "," + (h - sq_y(d.y)) + ")"; })
-      .attr("width", sq_x.rangeBand())
-      .attr("y", function(d) { return sq_y(d.y); })
-      .attr("height", 0)
-    .transition()
-      .duration(750)
-      .attr("y", 0)
-      .attr("height", function(d) { return sq_y(d.y); });
+    c_price.selectAll("rect")
+        .data(c_price_histogram)
+      .transition()
+        .duration(750)
+        .attr("y", 0)
+        .attr("height", function(d) { return p_y(d.y); })
+
+    c_bedroomcount.selectAll("rect")
+        .data(c_bedroomcount_histogram)
+      .transition()
+        .duration(750)
+        .attr("y", 0)
+        .attr("height", function(d) { return bd_y(d.y); })
+
+    c_sqft.selectAll("rect")
+        .data(c_sqft_histogram)
+      .transition()
+        .duration(750)
+        .attr("y", 0)
+        .attr("height", function(d) { return sq_y(d.y); })
+
 
 }
 
@@ -306,13 +334,6 @@ function reloadshit(completely_new) {
   
 }
 
-
-function hh() {
-  
-  
-  
-}
-
 //jQuery document initialization entrypoint 
 $(document).ready(function() {
       
@@ -322,7 +343,7 @@ $(document).ready(function() {
     .attr("width", histogram_width + "px")
     .attr("height", histogram_height + "px")
     .append("svg:g")
-      .attr("transform", "translate(.5)");
+      .attr("transform", "translate(.5," + histogram_height + ") scale(1,-1)");
   
 
   c_bedroomcount = d3.select("#bedroomcount_histogram")
@@ -331,7 +352,7 @@ $(document).ready(function() {
     .attr("width", histogram_width + "px")
     .attr("height", histogram_height + "px")
     .append("svg:g")
-      .attr("transform", "translate(.5)");
+      .attr("transform", "translate(.5," + histogram_height + ") scale(1,-1)");
 
   c_sqft = d3.select("#sqft_histogram")
     .append("svg:svg")
@@ -339,13 +360,11 @@ $(document).ready(function() {
     .attr("width", histogram_width + "px")
     .attr("height", histogram_height + "px")
     .append("svg:g")
-      .attr("transform", "translate(.5)");
-
-
-//  c_price.append("svg:line").attr("x1", 0).attr("x2", histogram_width).attr("y1", histogram_height).attr("y2", histogram_height);
+      .attr("transform", "translate(.5," + histogram_height + ") scale(1,-1)");
 
   
   raw_data.getAllData(null,function(data) {processData(data,true);});
+  //processData(raw_data,true)
   $("#city_select").change(function() {reloadshit(true);});
   
 });  
