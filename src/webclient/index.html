@@ -12,12 +12,13 @@
 	<link rel="stylesheet" type="text/css" href="css/site.css">
 
 	<link rel="stylesheet" type="text/css" href="css/smoothness/jquery-ui-1.8.16.custom.css">
-	
+	<script type="text/javascript" src="d3/d3.js"></script>
+	<script type="text/javascript" src="d3/d3.layout.min.js"></script>
+  
 	<script type="text/javascript" src="jquery/jquery-1.6.4.min.js"></script> 
 	<script type="text/javascript" src="jquery/jquery-ui-1.8.16.custom.min.js"></script> 
 	
-  <script type="text/javascript" src="d3-9520b07/d3.js"></script>
-  <script type="text/javascript">
+	<script type="text/javascript">
 
 function hide_loading_box() {
   $("#loading_message_box").hide();
@@ -151,6 +152,12 @@ function Bounds() {
 var raw_data = new RawData();
 var bounds;
 
+var c_price = 0;
+var c_price_histogram = 0;
+var histogram_height = 140;
+var histogram_width = 475;
+
+
 function update_range_text() {
   var pr = $("#price_slider").slider( "values" );
   var br = $("#bedroomcount_slider").slider( "values" );
@@ -164,7 +171,6 @@ function update_range_text() {
   $("#bedroomcount_values").html(""+br[0]+" - "+br[1]);
   $("#sqft_values").html(""+sf[0]+"sqft - "+sf[1]+"sqft");
   $("#city_values").html(""+raw_data.posts_count+" posts");
-
 }
 
 function init_ui(raw_data,bounds) {
@@ -199,6 +205,80 @@ function init_ui(raw_data,bounds) {
   update_range_text();
 }
 
+function update_histograms(raw_data,completely_new) {
+  var w = histogram_width,
+      h = histogram_height;
+ 
+  var c_price_histogram = d3.layout.histogram()
+    .range(bounds.pr)
+    (raw_data.price_list);
+  var c_bedroomcount_histogram = d3.layout.histogram()
+    .range(bounds.br)
+    (raw_data.bedroomcount_list);
+  var c_sqft_histogram = d3.layout.histogram()
+    .range(bounds.sf)
+    (raw_data.sqft_list);
+  
+ 
+  var p_x = d3.scale.ordinal()
+      .domain(c_price_histogram.map(function(d) { return d.x; }))
+      .rangeRoundBands([0, w]); 
+  var p_y = d3.scale.linear()
+      .domain([0, d3.max(c_price_histogram, function(d) { return d.y; })])
+      .range([0, h]);
+  
+  var bd_x = d3.scale.ordinal()
+      .domain(c_bedroomcount_histogram.map(function(d) { return d.x; }))
+      .rangeRoundBands([0, w]); 
+  var bd_y = d3.scale.linear()
+      .domain([0, d3.max(c_bedroomcount_histogram, function(d) { return d.y; })])
+      .range([0, h]);
+  
+  var sq_x = d3.scale.ordinal()
+      .domain(c_sqft_histogram.map(function(d) { return d.x; }))
+      .rangeRoundBands([0, w]); 
+  var sq_y = d3.scale.linear()
+      .domain([0, d3.max(c_sqft_histogram, function(d) { return d.y; })])
+      .range([0, h]);
+
+  c_price.selectAll("rect")
+      .data(c_price_histogram)
+    .enter().append("svg:rect")
+      .attr("transform", function(d) { return "translate(" + p_x(d.x) + "," + (h - p_y(d.y)) + ")"; })
+      .attr("width", p_x.rangeBand())
+      .attr("y", function(d) { return p_y(d.y); })
+      .attr("height", 0)
+    .transition()
+      .duration(750)
+      .attr("y", 0)
+      .attr("height", function(d) { return p_y(d.y); });
+
+  c_bedroomcount.selectAll("rect")
+      .data(c_bedroomcount_histogram)
+    .enter().append("svg:rect")
+      .attr("transform", function(d) { return "translate(" + bd_x(d.x) + "," + (h - bd_y(d.y)) + ")"; })
+      .attr("width", bd_x.rangeBand())
+      .attr("y", function(d) { return bd_y(d.y); })
+      .attr("height", 0)
+    .transition()
+      .duration(750)
+      .attr("y", 0)
+      .attr("height", function(d) { return bd_y(d.y); });
+
+  c_sqft.selectAll("rect")
+      .data(c_sqft_histogram)
+    .enter().append("svg:rect")
+      .attr("transform", function(d) { return "translate(" + sq_x(d.x) + "," + (h - sq_y(d.y)) + ")"; })
+      .attr("width", sq_x.rangeBand())
+      .attr("y", function(d) { return sq_y(d.y); })
+      .attr("height", 0)
+    .transition()
+      .duration(750)
+      .attr("y", 0)
+      .attr("height", function(d) { return sq_y(d.y); });
+
+}
+
 function processData(raw_data,completely_new) {
   change_loading_box("Processing Data");
   
@@ -208,6 +288,7 @@ function processData(raw_data,completely_new) {
     init_ui(raw_data,bounds);
   }
   update_range_text();
+  update_histograms(raw_data,completely_new);
   hide_loading_box();
 }
  
@@ -219,12 +300,50 @@ function reloadshit(completely_new) {
   if (!completely_new) 
     options = bounds.getQuery();
   options["city"] = $("#city_select").val();
-  raw_data.getAllData(options,function(data) {processData(raw_data,completely_new);});
+  
+  //will call processData next;
+  raw_data.getAllData(options,function(data) { processData(raw_data,completely_new); });
+  
+}
+
+
+function hh() {
+  
+  
   
 }
 
 //jQuery document initialization entrypoint 
 $(document).ready(function() {
+      
+  c_price = d3.select("#price_histogram")
+    .append("svg:svg")
+    .attr("class", "histogram_chart")
+    .attr("width", histogram_width + "px")
+    .attr("height", histogram_height + "px")
+    .append("svg:g")
+      .attr("transform", "translate(.5)");
+  
+
+  c_bedroomcount = d3.select("#bedroomcount_histogram")
+    .append("svg:svg")
+    .attr("class", "histogram_chart")
+    .attr("width", histogram_width + "px")
+    .attr("height", histogram_height + "px")
+    .append("svg:g")
+      .attr("transform", "translate(.5)");
+
+  c_sqft = d3.select("#sqft_histogram")
+    .append("svg:svg")
+    .attr("class", "histogram_chart")
+    .attr("width", histogram_width + "px")
+    .attr("height", histogram_height + "px")
+    .append("svg:g")
+      .attr("transform", "translate(.5)");
+
+
+//  c_price.append("svg:line").attr("x1", 0).attr("x2", histogram_width).attr("y1", histogram_height).attr("y2", histogram_height);
+
   
   raw_data.getAllData(null,function(data) {processData(data,true);});
   $("#city_select").change(function() {reloadshit(true);});
@@ -253,7 +372,8 @@ $(document).ready(function() {
   
   <div class="header">
     <div class="left_float">
-      <h2>craigslist housing helper</h2>
+      <h2>craigslist housing helper</h2>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; This data is <em>live</em> from Craigslist.
+
     </div>
     <div class="right_float" id="attribution">
       <a href="https://graphics.stanford.edu/wikis/cs448b-11-fall">CS448B project</a>, <a href="njoubert.com">Niels Joubert</a> and <a href="http://cs.stanford.edu/people/eschkufz/">Eric Schkufza</a>
@@ -264,9 +384,9 @@ $(document).ready(function() {
         
     <div id="databox">
       <div class="leftside">
-            This data is <em>live</em> from Craigslist.
         <div class="halfitem">
           <div class="item_heading"><h4>map</h4></div>
+          <a href="#" onclick="hh(); return false;">CLICK THIS SHIT</a>
         </div>
       </div>
       <div class="rightside">

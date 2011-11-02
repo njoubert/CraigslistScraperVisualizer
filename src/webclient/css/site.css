@@ -28,7 +28,7 @@
 .halfitem  {  }
 .item_heading { margin-bottom: 5px; margin-top: 5px;}
 .slider {height: 12px; margin-top: 3px; }
-.histogram {height: 140px; background: #aae;}
+.histogram {height: 140px; }
 /* Typography */
 
 html { font-size:100.01%; }
@@ -41,7 +41,7 @@ h2 {
   margin-bottom: 0.5em;
   font-variant: small-caps;
   letter-spacing: 1px;
-  display: block;
+  display: inline;
   font-size: 1.5em;
   font-weight: bold;
 }
@@ -86,4 +86,16 @@ p   { margin: 0 0 1em; }
 }
 .item_values {
     color: #f6931f;
+}
+
+/* Histograms */
+
+rect {
+  fill: steelblue;
+  stroke: white;
+}
+ 
+line {
+  stroke: black;
+  shape-rendering: crispEdges;
 }
