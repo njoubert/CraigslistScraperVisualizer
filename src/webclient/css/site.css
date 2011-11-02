@@ -29,6 +29,9 @@
 .item_heading { margin-bottom: 5px; margin-top: 5px;}
 .slider {height: 12px; margin-top: 3px; }
 .histogram {height: 140px; }
+
+#map_canvas {width: 450px; height: 400px; margin: 5px 5px 5px 0px;}
+
 /* Typography */
 
 html { font-size:100.01%; }
@@ -52,7 +55,6 @@ h4 {
   display: inline;  
 }
 p   { margin: 0 0 1em; }
-
 
 /* Specific Element Styling */
 

@@ -182,11 +182,11 @@ var returnArrayDist = function(res,index) {
 
 var returnObjectDist = function(res,index) {
   return function(err,data) {
-    //if (data.length > 500) {
-    //  resJson(res,{"count":data.length})
-    //} else {
+    if (data.length > 200) {
+     resJson(res,{"count":data.length})
+    } else {
       resJson(res,data);
-    //}
+    }
   };      
 }
 
@@ -207,7 +207,7 @@ var defineDistRoute = function(name,dbwhat,formatter) {
 defineDistRoute("price", "PI.price",returnArrayDist);
 defineDistRoute("sqft", "PI.sqft",returnArrayDist);
 defineDistRoute("bedroomcount", "PI.bedroomcount",returnArrayDist);
-defineDistRoute("location", "PI.title, P.last_seen, PI.price, PI.sqft, PI.bedroomcount, PI.loc_xstreet0, PI.loc_xstreet1, PI.loc_city, PI.loc_region, PI.loc_link",returnObjectDist);
+defineDistRoute("location", "PI.title, P.last_seen, PI.link, PI.price, PI.sqft, PI.bedroomcount, PI.loc_xstreet0, PI.loc_xstreet1, PI.loc_city, PI.loc_region, PI.loc_link",returnObjectDist);
 
 
 
