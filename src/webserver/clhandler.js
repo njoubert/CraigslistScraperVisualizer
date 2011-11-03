@@ -71,9 +71,17 @@ var cldb = function(mysqldb) {
       db.query().select('*').from('posts').limit(10000).execute(function(error,rows,cols) {callback(error,rows)});
     },
     getAll: function(callback) {
-      db.query('SELECT * FROM posts p, post_instance pi WHERE p.city=\'sfc\' AND p.id = pi.post_id LIMIT 10000;')
-      .execute(function(error,rows,cols) {callback(error,rows)});
-    },
+      var querystr = "";
+      querystr += "SELECT PI.id, PI.title, P.last_seen, PI.link, PI.price, PI.sqft, PI.bedroomcount, PI.loc_xstreet0, PI.loc_xstreet1, PI.loc_city, PI.loc_region, PI.loc_link"
+      querystr += "      FROM posts P, post_instance PI where P.id = PI.post_id "
+      querystr += "      AND P.section='apa' "
+      querystr += "      AND PI.id = (SELECT MAX(id) FROM post_instance PI_p where PI_p.post_id = PI.post_id) "
+      querystr += "      ORDER BY PI.id DESC "
+      querystr += "      LIMIT 10000;    "
+      
+      db.query(querystr).execute(function(error,rows,cols) {callback(error,rows)});
+  
+      },
     
     /* Distribution methods: */
     getSomeDist: function(name,dbwhat,filters,callback) {
@@ -96,7 +104,6 @@ var cldb = function(mysqldb) {
       querystr += "      ORDER BY PI.id DESC "
       querystr += "      LIMIT "+filters.limit+";    "
       
-      console.log(querystr)
       db.query(querystr).execute(function(error,rows,cols) {callback(error,rows)});
     }
   }
@@ -182,13 +189,20 @@ var returnArrayDist = function(res,index) {
 
 var returnObjectDist = function(res,index) {
   return function(err,data) {
-    if (data.length > 200) {
+    if (data.length > 10) {
      resJson(res,{"count":data.length})
     } else {
       resJson(res,data);
     }
   };      
 }
+
+var returnAllObjectDist = function(res,index) {
+  return function(err,data) {
+    resJson(res,data);
+  };      
+}
+
 
 /**
  * Here we set up the supported calls
@@ -207,10 +221,10 @@ var defineDistRoute = function(name,dbwhat,formatter) {
 defineDistRoute("price", "PI.price",returnArrayDist);
 defineDistRoute("sqft", "PI.sqft",returnArrayDist);
 defineDistRoute("bedroomcount", "PI.bedroomcount",returnArrayDist);
-defineDistRoute("location", "PI.title, P.last_seen, PI.link, PI.price, PI.sqft, PI.bedroomcount, PI.loc_xstreet0, PI.loc_xstreet1, PI.loc_city, PI.loc_region, PI.loc_link",returnObjectDist);
+defineDistRoute("location", "PI.id, PI.title, P.last_seen, PI.link, PI.price, PI.sqft, PI.bedroomcount, PI.loc_xstreet0, PI.loc_xstreet1, PI.loc_city, PI.loc_region, PI.loc_link",returnObjectDist);
 
 
 
-routes["/getCount.json"] = function(req,res,next,options,db,path) {
-  db.getCount(resDBdata(res,"posts_count"));
+routes["/getAll.json"] = function(req,res,next,options,db,path) {
+  db.getAll(resDBdata(res,"posts_count"));
 };

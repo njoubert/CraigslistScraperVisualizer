@@ -15,7 +15,7 @@ CREATE TABLE posts (
   last_seen      TIMESTAMP     NOT NULL,    # last time this entry was in database
 
   PRIMARY KEY (id),
-  UNIQUE INDEX compound_post_id (region, city, section, cl_id)
+  INDEX citysection (city, section)
 );
 
 CREATE TABLE post_instance (
@@ -40,7 +40,10 @@ CREATE TABLE post_instance (
   loc_region     VARCHAR(30),
   loc_link       VARCHAR(255),
   
+  
+  
   PRIMARY KEY (id),
   INDEX (title(100)).
   INDEX (post_id)
+  INDEX (price, bedroomcount, sqft)
 );
