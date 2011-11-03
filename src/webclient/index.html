@@ -22,9 +22,6 @@
   <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>
   
   <script type="text/javascript" src="mapper.js"></script>
-  
-  <script type="text/javascript" src="get_price_dist.json"></script> 
-
 	
 	<script type="text/javascript">
 
@@ -47,7 +44,7 @@ function show_global_error(message) {
 function RawData() {
   var dataptr = this //lame JS hack to keep a ptr around to the object
 
-  this.price_list = STARTUP_PRICE_DIST;
+  this.price_list = [];
   this.sqft_list = [];
   this.bedroomcount_list = [];
   this.posts_count = 0;
@@ -215,9 +212,6 @@ function init_ui(raw_data,bounds) {
   update_range_text();
 }
 
-
-
-
 var p_x  = null
 var p_y  = null
 var bd_x = null
@@ -229,16 +223,23 @@ function update_histograms(raw_data,completely_new) {
   var w = histogram_width,
       h = histogram_height;
  
+  
   var c_price_histogram = d3.layout.histogram()
     .range(bounds.pr)
+    .bins(27)
     (raw_data.price_list);
+  
   var c_bedroomcount_histogram = d3.layout.histogram()
     .range(bounds.br)
     .bins([1,2,3,4,5,6,7,8,9])
     (raw_data.bedroomcount_list);
+    
   var c_sqft_histogram = d3.layout.histogram()
     .range(bounds.sf)
+    .bins(27)
     (raw_data.sqft_list);
+    
+  // $("#debug").html(bounds.pr + "<br/>" + c_price_histogram.map(function(d) { return d.x; }))
   
   if (completely_new) {
     p_x = d3.scale.ordinal()
@@ -360,6 +361,33 @@ function reloadshit(completely_new) {
   
 }
 
+var geocoded_array = []
+
+function createCallback(idx,mymax) {
+  setTimeout(function() {
+        var address = ALL[idx]["loc_xstreet0"] + " at " + ALL[idx]["loc_xstreet0"] + ", " + ALL[idx]["loc_city"] + ", " + ALL[idx]["loc_region"];
+        geocoder.geocode({'address': address}, function(results, status) {
+          if (status == google.maps.GeocoderStatus.OK) {
+            geocoded_array.push({"id":ALL[idx].id,"latlon":results[0].geometry.location});
+          } else {
+            geocoded_array.push({"id":ALL[idx].id,"error":status});
+          }
+          if (idx < mymax) {
+            $("#blurbshit").html("Received " + geocoded_array.length + ", currently id " + ALL[idx]["id"] + " with result " + status);    
+          } else {
+            $("body").html(JSON.stringify(geocoded_array));
+          }
+
+        });
+        if (idx < mymax) {
+          createCallback(idx+1,mymax);
+        }
+      }, 1000);
+}
+function geocodethis() {
+  createCallback(0, 10000);
+}
+
 //jQuery document initialization entrypoint 
 $(document).ready(function() {
       
@@ -392,6 +420,7 @@ $(document).ready(function() {
 
   
   raw_data.getAllData(null,function(data) {processData(data,true);});
+  //hide_loading_box();
   $("#city_select").change(function() {reloadshit(true);});
   
 });  
@@ -400,16 +429,6 @@ $(document).ready(function() {
 <body>
 <div class="container">
   
-  <div class="page_center_float" id="loading_message_box">
-    <div class="middle_float" id="loading_message_content">
-      <div id="loading_message_status">
-        <img src="img/spinner3.gif" />
-        <span id="loading_message_text">
-        <h4>Loading Data</h4>
-        </span>
-      </div>
-    </div>
-  </div>
   <div class="page_center_float" id="error_message_box">
     <div class="middle_float" id="error_message_content">
 
@@ -448,6 +467,17 @@ $(document).ready(function() {
             <option value="nby">North Bay</option>
             <option value="scz">Santa Cruz</option>
           </select>
+              <div id="loading_message_box">
+                <div id="loading_message_content">
+                  <div id="loading_message_status">
+                    <img src="img/smallspinner.gif" width=16 height=16/>
+                    <span id="loading_message_text">
+                    <h4>Loading Data</h4>
+                    </span>
+                  </div>
+                </div>
+              </div>
+
         </div>
         <div class="halfitem">
           <div class="item_heading"><h4>price</h4> <span class="item_values" id="price_values"></span></div>
@@ -466,6 +496,7 @@ $(document).ready(function() {
         </div>
       </div>
     </div>
+        <!-- <a href="#" onclick="geocodethis(); return false;">GEOCODE EVERTHING NOW!</a> -->
       <div id="blurbshit">
     
         <p>
@@ -486,7 +517,7 @@ $(document).ready(function() {
       </div>
 
   </div>
-
+  <div id="debug"></div>
   
 </div>
 </body>

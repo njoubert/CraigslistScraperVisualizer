@@ -59,11 +59,17 @@ p   { margin: 0 0 1em; }
 /* Specific Element Styling */
 
 #loading_message_box { 
+  float: right;
+  position: relative;
+  display: inline;
   z-index: 100000;  
-  height: 80px;  margin-top: -40px;
-  background:#DEEBF7; border: 2px solid #9ECAE1; padding: 5px;  -webkit-border-radius: 10px; -moz-border-radius: 10px; }
-#loading_message_content { color: #666; font-size: 12pt; margin-top: 22px; }
-#loading_message_content img { margin: 1px 10px 5px -5px; vertical-align: middle; }
+  height: 20px;  
+  width: 153px;
+  margin-top: -20px;
+  background:#DEEBF7; border: 2px solid #9ECAE1; padding: 6px;  -webkit-border-radius: 5px; -moz-border-radius: 5px; }
+  
+#loading_message_content { color: #666; font-size: 10pt; margin-top: 2px; }
+#loading_message_content img { margin: 1px 5px 5px 5px; vertical-align: middle; }
 #loading_message_blurb {margin-top: 15px; font-size: 10pt;}
 
 #error_message_box {   
@@ -88,6 +94,10 @@ p   { margin: 0 0 1em; }
 }
 .item_values {
     color: #f6931f;
+}
+
+#debug {
+  font-size: 8pt;
 }
 
 /* Histograms */
