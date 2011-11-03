@@ -118,9 +118,14 @@ function Bounds() {
   this.sf_sel = [0,0]
   
   this.compute = function(raw_data) {
-    dataptr.pr_sel = dataptr.pr = findBoundsInArray(raw_data.price_list)
-    dataptr.sf_sel = dataptr.sf = findBoundsInArray(raw_data.sqft_list)
-    dataptr.br_sel = dataptr.br = findBoundsInArray(raw_data.bedroomcount_list)
+    dataptr.pr = findBoundsInArray(raw_data.price_list)
+    dataptr.sf = findBoundsInArray(raw_data.sqft_list)
+    dataptr.br = findBoundsInArray(raw_data.bedroomcount_list)
+    
+    dataptr.pr_sel = findBoundsInArray(raw_data.price_list)
+    dataptr.sf_sel = findBoundsInArray(raw_data.sqft_list)
+    dataptr.br_sel = findBoundsInArray(raw_data.bedroomcount_list)
+    
   }
   
   this.getQuery = function() {
@@ -157,13 +162,12 @@ function Bounds() {
 }
 
 var raw_data = new RawData();
-var bounds;
+var bounds = new Bounds();
 
 var c_price = 0;
 var c_price_histogram = 0;
 var histogram_height = 140;
 var histogram_width = 475;
-
 
 function update_range_text() {
   var pr = $("#price_slider").slider( "values" );
@@ -180,8 +184,9 @@ function update_range_text() {
   $("#city_values").html(""+raw_data.posts_count+" posts");
 }
 
-function init_ui(raw_data,bounds) {
+function init_ui(raw_data) {
   
+  $("#price_slider").slider("destroy");
   $("#price_slider").slider({
     range: true,
     min: bounds.pr[0],
@@ -190,7 +195,8 @@ function init_ui(raw_data,bounds) {
     slide: function(e,u) { update_range_text(); return true;},
     stop: function() {update_range_text(); reloadshit(false)}
   });
-  
+
+  $("#bedroomcount_slider").slider("destroy");
   $("#bedroomcount_slider").slider({
     range: true,
     min: bounds.br[0],
@@ -199,7 +205,8 @@ function init_ui(raw_data,bounds) {
     slide: function(e,u) { update_range_text(); return true;},
     stop: function() {update_range_text(); reloadshit(false)}
   });
-  
+
+  $("#sqft_slider").slider("destroy");  
   $("#sqft_slider").slider({
     range: true,
     min: bounds.sf[0],
@@ -219,7 +226,7 @@ var bd_y = null
 var sq_x = null
 var sq_y = null
 
-function update_histograms(raw_data,completely_new) {
+function update_histograms(raw_data,bounds,completely_new) {
   var w = histogram_width,
       h = histogram_height;
  
@@ -239,7 +246,7 @@ function update_histograms(raw_data,completely_new) {
     .bins(27)
     (raw_data.sqft_list);
     
-  // $("#debug").html(bounds.pr + "<br/>" + c_price_histogram.map(function(d) { return d.x; }))
+  $("#debug").html(bounds.pr + "<br/>" + c_price_histogram.map(function(d) { return d.x; }))
   
   if (completely_new) {
     p_x = d3.scale.ordinal()
@@ -330,7 +337,6 @@ function update_map(raw_data) {
       }
     }
     
-    
   }
 }
 
@@ -338,12 +344,11 @@ function processData(raw_data,completely_new) {
   change_loading_box("Processing Data");
   
   if (completely_new) {
-    bounds = new Bounds()
     bounds.compute(raw_data);
     init_ui(raw_data,bounds);
   }
   update_range_text();
-  update_histograms(raw_data,completely_new);
+  update_histograms(raw_data,bounds,completely_new);
   update_map(raw_data)
   hide_loading_box();
 }
@@ -365,30 +370,30 @@ function reloadshit(completely_new) {
 
 var geocoded_array = []
 
-function createCallback(idx,mymax) {
-  setTimeout(function() {
-        var address = ALL[idx]["loc_xstreet0"] + " at " + ALL[idx]["loc_xstreet0"] + ", " + ALL[idx]["loc_city"] + ", " + ALL[idx]["loc_region"];
-        geocoder.geocode({'address': address}, function(results, status) {
-          if (status == google.maps.GeocoderStatus.OK) {
-            geocoded_array.push({"id":ALL[idx].id,"latlon":results[0].geometry.location});
-          } else {
-            geocoded_array.push({"id":ALL[idx].id,"error":status});
-          }
-          if (idx < mymax) {
-            $("#blurbshit").html("Received " + geocoded_array.length + ", currently id " + ALL[idx]["id"] + " with result " + status);    
-          } else {
-            $("body").html(JSON.stringify(geocoded_array));
-          }
-
-        });
-        if (idx < mymax) {
-          createCallback(idx+1,mymax);
-        }
-      }, 1000);
-}
-function geocodethis() {
-  createCallback(0, 10000);
-}
+// function createCallback(idx,mymax) {
+//   setTimeout(function() {
+//         var address = ALL[idx]["loc_xstreet0"] + " at " + ALL[idx]["loc_xstreet0"] + ", " + ALL[idx]["loc_city"] + ", " + ALL[idx]["loc_region"];
+//         geocoder.geocode({'address': address}, function(results, status) {
+//           if (status == google.maps.GeocoderStatus.OK) {
+//             geocoded_array.push({"id":ALL[idx].id,"latlon":results[0].geometry.location});
+//           } else {
+//             geocoded_array.push({"id":ALL[idx].id,"error":status});
+//           }
+//           if (idx < mymax) {
+//             $("#blurbshit").html("Received " + geocoded_array.length + ", currently id " + ALL[idx]["id"] + " with result " + status);    
+//           } else {
+//             $("body").html(JSON.stringify(geocoded_array));
+//           }
+// 
+//         });
+//         if (idx < mymax) {
+//           createCallback(idx+1,mymax);
+//         }
+//       }, 1000);
+// }
+// function geocodethis() {
+//   createCallback(0, 10000);
+// }
 
 //jQuery document initialization entrypoint 
 $(document).ready(function() {
@@ -421,9 +426,8 @@ $(document).ready(function() {
       .attr("transform", "translate(.5," + histogram_height + ") scale(1,-1)");
 
   
-  raw_data.getAllData(null,function(data) {processData(data,true);});
-  //hide_loading_box();
-  $("#city_select").change(function() {reloadshit(true);});
+  raw_data.getAllData(null,function(data) { processData(data,true); });
+  $("#city_select").change(function()     { reloadshit(true);       });
   
 });  
   </script>
