@@ -316,16 +316,18 @@ function update_histograms(raw_data,completely_new) {
 }
 
 function update_map(raw_data) {
-  if (raw_data.posts && raw_data.posts.length > 0) {
-    
+    if (raw_data.posts && raw_data.posts.length > 0) {
+  
     mmp_clearPins();
     for (var i = 0; i < raw_data.posts.length; i++) {
-      
-      mmp_dropPin(
-        raw_data.posts[i]["loc_xstreet0"] + " at " + raw_data.posts[i]["loc_xstreet1"], 
-        raw_data.posts[i]["title"], 
-        "<h3><a href='"+raw_data.posts[i]["link"]+"' target='_blank'>"+raw_data.posts[i]["title"]+"</a></h3>"
-        );
+      if (raw_data.posts[i]["lat"]) {
+        mmp_dropPin(
+          raw_data.posts[i]["lat"],
+          raw_data.posts[i]["lon"], 
+          raw_data.posts[i]["title"], 
+          "<h3><a href='"+raw_data.posts[i]["link"]+"' target='_blank'>"+raw_data.posts[i]["title"]+"</a></h3>"
+          );        
+      }
     }
     
     

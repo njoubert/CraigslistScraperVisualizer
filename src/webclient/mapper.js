@@ -55,7 +55,7 @@ function mmp_initialize(city) {
 // title   = posting title
 // posting = full posting text
 
-function mmp_dropPin(address, title, posting) {
+function mmp_dropPinWithAddress(address, title, posting) {
   geocoder.geocode({'address': address}, function(results, status) {
     if (status == google.maps.GeocoderStatus.OK) {
 
@@ -81,13 +81,30 @@ function mmp_dropPin(address, title, posting) {
   });
 }
 
+function mmp_dropPin(lat, lon, title, posting) {
+
+  var latlng = new google.maps.LatLng(lat, lon);
+  
+  var marker = new google.maps.Marker({
+    map: map,
+    animation: google.maps.Animation.FADE,
+    draggable: false,
+    position: latlng,
+    title: title
+  });
+
+  var infowindow = new google.maps.InfoWindow({content: posting});
+
+  google.maps.event.addListener(marker, 'click', function() {
+    infowindow.open(map,marker);
+  });
+
+  markersArray.push(marker);
+
+}
+
 // This should iterate over search results, calling dropPin with the appropriate values
 // locations = Temporary data
-
-var locations = ["2801 Greenwich at Baker", 
-"1845 Franklin Street", 
-"ST.GERMAIN at GLENBROOK", 
-"Manzanita at Euclid"];
 
 function mmp_dropPins() {
   for ( var i = 0; i < locations.length; i++ ) {

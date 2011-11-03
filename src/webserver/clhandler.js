@@ -63,7 +63,41 @@ var cldb = function(mysqldb) {
       return filters;    
   }
   
+  function querycallback(err,rows,cols) {
+    var a = 0
+    if (!err) {
+      a += 1
+      console.log(a)
+    }
+  }
+  
   return {
+    insertGeocoded: function(callback) {
+      fs.readFile('/Users/njoubert/Dropbox/Code/CLScraper/geocoded.json', function (js_err, js_data) {
+        if (js_err) throw js_err;
+        var g = JSON.parse(js_data);
+        
+        function spawnfor(garray,gindex,gmax) {
+          if (gindex < gmax) {
+           var myid = garray[gindex]['id'];
+           console.log(gindex + ", " + myid);        
+            if (garray[gindex]['latlon']) {
+              var lat = garray[gindex]['latlon']['Na'];
+              var lon = garray[gindex]['latlon']['Oa'];
+              db.query("UPDATE post_instance SET lat='"+lat+"', lon='"+lon+"' WHERE id='"+myid+"';").execute(function(errorr,rowsr,colsr) { spawnfor(garray,gindex+1,gmax); });
+            } else {
+              spawnfor(garray,gindex+1,gmax);
+            }
+          } else {
+            callback(false,{"done":g})
+          }
+        }
+        
+        spawnfor(g,0,g.length);
+        
+      });
+
+    },
     getCount: function(callback) {
       db.query().select('count(*)').from('posts').execute(function(error,rows,cols) {callback(error,rows[0]["count(*)"])});
     },
@@ -189,11 +223,11 @@ var returnArrayDist = function(res,index) {
 
 var returnObjectDist = function(res,index) {
   return function(err,data) {
-    if (data.length > 10) {
-     resJson(res,{"count":data.length})
-    } else {
+    // if (data.length > 2000) {
+    //  resJson(res,{"count":data.length})
+    // } else {
       resJson(res,data);
-    }
+    // }
   };      
 }
 
@@ -209,6 +243,10 @@ var returnAllObjectDist = function(res,index) {
  */
 var routes = { }
 
+// routes['/insert.json'] = function(req,res,next,options,db,path) {
+//   db.insertGeocoded(resDBdata(res,"posts"));
+// };
+
 routes['/getLocations.json'] = function(req,res,next,options,db,path) {
   db.getLocations(resDBdata(res,"posts"));
 };
@@ -221,7 +259,7 @@ var defineDistRoute = function(name,dbwhat,formatter) {
 defineDistRoute("price", "PI.price",returnArrayDist);
 defineDistRoute("sqft", "PI.sqft",returnArrayDist);
 defineDistRoute("bedroomcount", "PI.bedroomcount",returnArrayDist);
-defineDistRoute("location", "PI.id, PI.title, P.last_seen, PI.link, PI.price, PI.sqft, PI.bedroomcount, PI.loc_xstreet0, PI.loc_xstreet1, PI.loc_city, PI.loc_region, PI.loc_link",returnObjectDist);
+defineDistRoute("location", "PI.id, PI.title, P.last_seen, PI.link, PI.price, PI.sqft, PI.bedroomcount, PI.loc_xstreet0, PI.loc_xstreet1, PI.loc_city, PI.loc_region, PI.loc_link, PI.lat, PI.lon",returnObjectDist);
 
 
 
