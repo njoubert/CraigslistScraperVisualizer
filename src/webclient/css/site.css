@@ -1,7 +1,7 @@
 /* Layout */
 /* margin: top right bottom left*/
-.container { width:950px; margin:0 auto; padding-left: 5px; padding-right: 5px;  
-}
+html, body { width: 100%;}
+.container { width:100%; margin:0 auto; }
 .header {
   padding: 2px 0px 0px 0px;
   margin-bottom: 0.0em;
@@ -19,19 +19,21 @@
   width:  400px; margin-left: -200px;
 }
 .middle_float { margin: 0 auto; text-align: center; position: relative; }
-.left_float   { display: inline; position: relative; float: left; }
-.right_float  { display: inline; position: relative; float: right; }
+.left_float   { display: inline; float: left; }
+.right_float  { display: inline; float: right; }
 
-#databox   { height: 400px; display: block; }
-.leftside  { width: 475px; float: left; }
-.rightside { width: 475px; float: right; }
+
+.leftside  { position: absolute; top: 35px; left: 0px; right: 510px; bottom: 0px; }
+.rightside { margin-right: 20px; width: 475px; float: right; }
+
 .halfitem  {  }
 .item_heading { margin-bottom: 5px; margin-top: 5px;}
 .slider {height: 12px; margin-top: 3px; }
 .histogram {height: 140px; }
 
-#map_canvas {width: 450px; height: 400px; margin: 5px 5px 5px 0px;}
-#blurbshit {width: 450px; text-align: justify;}
+#map_canvas {position: absolute; top: 0px; bottom: 0px; left: 0px; right: 0px; background: #ddd;}
+
+
 /* Typography */
 
 html { font-size:100.01%; }

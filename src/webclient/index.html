@@ -246,7 +246,7 @@ function update_histograms(raw_data,bounds,completely_new) {
     .bins(27)
     (raw_data.sqft_list);
     
-  $("#debug").html(bounds.pr + "<br/>" + c_price_histogram.map(function(d) { return d.x; }))
+  // $("#debug").html(bounds.pr + "<br/>" + c_price_histogram.map(function(d) { return d.x; }))
   
   if (completely_new) {
     p_x = d3.scale.ordinal()
@@ -453,15 +453,12 @@ $(document).ready(function() {
   
   <div class="content">
         
-    <div id="databox">
       <div class="leftside">
-        <div class="halfitem">
-          <div class="item_heading"><h4>map</h4></div>
-          <div id="map_canvas">
-            Map loading...
-          </div>
+        <div id="map_canvas">
+          Map loading...
         </div>
       </div>
+
       <div class="rightside">
         <div class="halfitem">
           <div class="item_heading"><h4>city</h4> <span class="item_values" id="city_values"></span></div>
@@ -500,30 +497,11 @@ $(document).ready(function() {
           <div class="histogram" id="sqft_histogram"></div>
           <div class="slider"    id="sqft_slider"></div>
         </div>
-      </div>
-    </div>
-        <!-- <a href="#" onclick="geocodethis(); return false;">GEOCODE EVERTHING NOW!</a> -->
-      <div id="blurbshit">
-    
-        <p>
-        When searching for housing, we start by picking criteria, examples are price, location, bedrooms and square footage.
-        We then examine the available house postings to find matches for these criteria. Once we've found a set of matches,
-        we physically visit these places to gauge their viability. Usually at this point we discover that our criteria are not ideal, and we
-        adjust them appropriately, restarting the process.
-        </p>
-        <p>
-        Craigslist receives over 30,000 housing-related posts every week, and that's only in the Bay Area. This process of slowly varying your
-        criteria until you find an appropriate place is far too slow to keep up with this torrent of information. 
-        </p>
-        </p>
-        This project is aimed at helping the prospective renter or buyer at evaluating their criteria by looking at the distribution of
-        posts for these criteria on craigslist.
-        </p>
-        
+        <div id="debug"></div>
       </div>
 
   </div>
-  <div id="debug"></div>
+
   
 </div>
 </body>
