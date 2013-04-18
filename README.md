@@ -1,17 +1,26 @@
-This scrapes Craigslist and visualizes Housing results on a map and as a set of histograms.
+## Craigslist Scraper
 
-Use at your own risk, we assume no liability, this was purely written as a technology demo for a class project.
+This project scrapes Craigslist for housing posts, visualizes it as a brushing-and-linking interface between histograms and spatial layouts.
 
-## Installation of the Visualization webapp
+Authors: Niels Joubert [@njoubert](http://github.com/njoubert), Eric Schkufza [@eschkufz](https://github.com/eschkufz)
+
+This is a class project for Prof. Jeff Heer's CS448B class at Stanford. 
+
+![CLScraper Image](https://raw.github.com/njoubert/CraigslistScraperVisualizer/master/CLScraper_screenshot.png)
+
+***Use at your own risk, we assume no liability, this was purely written as a technology demo for a class project***
+
+
+### Installation of the Visualization webapp
 
 Please see /src/webserver/INSTALL for instructions on 
 getting the webserver running
 
-## Running Visualization App 
+### Running Visualization App 
 
 just launch ./webserver.sh
 
-## Running the Craigslist scraper
+### Running the Craigslist scraper
 
 this depends on a mysql database with the schema of /src/db/schema.sql
 now you can run /src/scraper/scraper.py and it will poll craigslist and populate the database
