@@ -13,9 +13,9 @@ This project scrapes Craigslist for housing posts, visualizes it as a brushing-a
 ![CLScraper Image](https://raw.github.com/njoubert/CraigslistScraperVisualizer/master/CLScraper_screenshot.png)
 
 
-# Dirty Details
+## Dirty Details
 
-## Installation of the Visualization webapp
+### Installation of the Visualization webapp
 
 Please see /src/webserver/INSTALL for instructions on 
 getting the webserver running
