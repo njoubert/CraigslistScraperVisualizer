@@ -3,11 +3,13 @@
 
 ## NOTICE: Code Removed due to Cease and Desist
 
-Craiglist sent us a Cease and Desist letter, forcing us to remove the code on this page. Fuck you Craiglist, you could have asked nicely without getting lawyers involved. It was just a class project.
+Craiglist sent us a Cease and Desist letter, forcing us to remove the code on this page. Fuck you Craiglist, you could have asked nicely without getting lawyers involved. It was just a class project. This isn't how we do things here. 
 
 Here's the Cease and Desist letter: https://github.com/njoubert/CraigslistScraperVisualizer/raw/master/123575442_1.pdf
 
-The code has been purged from this repository.
+The code has been purged from this repository, and we are no longer in voilation of Craiglist's TOS. There's still some pretty images below. 
+
+The lawyers in question is Perkins Coie LLP.
 
 ## Project Overview
 
