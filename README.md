@@ -1,5 +1,16 @@
 # Craigslist Scraper
 
+
+## NOTICE: Code Removed due to Cease and Desist
+
+Craiglist sent us a Cease and Desist letter, forcing us to remove the code on this page. Fuck you Craiglist, you could have asked nicely without getting lawyers involved. It was just a class project.
+
+Here's the Cease and Desist letter: https://github.com/njoubert/CraigslistScraperVisualizer/raw/master/123575442_1.pdf
+
+The code has been purged from this repository.
+
+## Project Overview
+
 This project scrapes Craigslist for housing posts, visualizes it as a brushing-and-linking interface between histograms and spatial layouts. This is a class project for Prof. Jeff Heer's CS448B class at Stanford. 
 
 
